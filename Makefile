@@ -20,5 +20,7 @@ huffman.o : huffman.c
 
 huffmanDecod.o : huffman.c
 
+cleanO :
+	rm -f $(OBJS)
 clean:
 	rm -f huffman huffmanDecod $(OBJS)
