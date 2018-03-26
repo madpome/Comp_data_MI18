@@ -353,7 +353,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	unsigned char u6 = 0 | (1<<6);
 	unsigned char u7 = 0 | (1<<7);
 	unsigned char bitC = 0;
-	unsigned short idx = 0;
+	unsigned char idx = 0;
 	int wrote = 0;
 	char * code;
 	//mettre le code dans le fichier de sortie
