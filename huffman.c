@@ -357,7 +357,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	unsigned char bitC = 0;
 	unsigned char idx = 0;
 	int wrote = 0;
-	char * code;
+	char * code = calloc(1,1);
 	//mettre le code dans le fichier de sortie
 	while((c=fgetc(f))!=EOF){
 		for(int i = 0;i< len; i++){
@@ -459,6 +459,7 @@ int main(int argc, char ** argv){
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
+		printf("%s\n",tabCode[i].code);
 	}
 	char *s;
 	close(fd);
