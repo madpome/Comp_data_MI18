@@ -464,7 +464,7 @@ int main(int argc, char ** argv){
 	createDOT(f,*tab_node);
 	fclose(f);
 	s = calloc(0,100);
-	sprintf(s,"dot -Tpng -o %s.png truc.dot",argv[2]);
+	sprintf(s,"dot -Tpng -o %s truc.dot",argv[2]);
 	system(s);
 	remove("truc.dot");
 	f = fopen(argv[1],"r");
