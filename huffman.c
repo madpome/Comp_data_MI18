@@ -463,7 +463,7 @@ int main(int argc, char ** argv){
 	FILE * f =fopen("truc.dot","w");
 	createDOT(f,*tab_node);
 	fclose(f);
-	s = calloc(0,100);
+	s = calloc(100,1);
 	sprintf(s,"dot -Tpng -o %s truc.dot",argv[2]);
 	system(s);
 	remove("truc.dot");
