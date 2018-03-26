@@ -312,6 +312,7 @@ void write_node(FILE * output, node x){
 void writeHeader(FILE * output,node src){
 	fseek(output,0,SEEK_SET);
 	fwrite("HSMI",1,4,output);
+	printf("%d\n",src.id);
 	fseek(output,1,SEEK_CUR);
 	//et ici on écrit l'arbre
 	uint16_t x = htons(src.id);
@@ -465,7 +466,7 @@ int main(int argc, char ** argv){
 	createDOT(f,*tab_node);
 	fclose(f);
 	s = calloc(100,1);
-	sprintf(s,"dot -Tpng -o %s truc.dot",argv[2]);
+	sprintf(s,"dot -Tpng -o %s.png truc.dot",argv[2]);
 	system(s);
 	remove("truc.dot");
 	f = fopen(argv[1],"r");
