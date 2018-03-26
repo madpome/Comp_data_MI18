@@ -413,8 +413,8 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	}
 }
 int main(int argc, char ** argv){
-	if(argc<2) {
-		fprintf(stderr,"Manque un argument\n");
+	if(argc<3) {
+		fprintf(stderr,"Besoin de 2 arguments in et out\n");
 		return -1;
 	}
 	int fd = open(argv[1], O_RDONLY);
@@ -436,12 +436,6 @@ int main(int argc, char ** argv){
 	//Maintenant il faut le trier
 	qsort(tab, nb_elem, sizeof(montableau), &montableau_cmp);
 	int nb_elem2 = nb_elem;
-
-	//On affiche les elements
-	for(int i = 0; i<nb_elem; i++) {
-		//printf ("(%c : %d)\n",tab[i].c,tab[i].v);
-	}
-
 	node * tab_node = malloc(nb_elem*sizeof(node));
 	// On initialise le tableau de noeud avec chaque element du tableau de caractere.
 	for(int i = 0; i<nb_elem; i++) {
@@ -459,31 +453,25 @@ int main(int argc, char ** argv){
 
 	//Il faudrait créer un tableau de correspondance charactere/code
 	//Normalement apres ca on a l'arbre
-
-	//printf("(num noeud, caractere, weight, numg, numd)\n");
-
-	affiche(tab_node);
 	charCode * tabCode = malloc(nb_elem2*sizeof(charCode));
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
-		printf("%c : %s\n",tabCode[i].c,tabCode[i].code);
 	}
-	char caractere = ' ';
-	char *s = getCode(*tab_node, caractere);
-	printf("code de %c : %s\n", caractere, s);
+	char *s;
 	close(fd);
 	FILE * f =fopen("truc.dot","w");
-	//createDOT(f,*tab_node);
-	//Ne marche pas
+	createDOT(f,*tab_node);
 	fclose(f);
-	//system("dot -Tpng -o truc.png truc.dot");
+	s = calloc(0,100);
+	sprintf(s,"dot -Tpng -o %s.png truc.dot",argv[2]);
+	system(s);
+	remove("truc.dot");
 	f = fopen(argv[1],"r");
-	FILE * f2 = fopen("machin.txt","w");
+	FILE * f2 = fopen(argv[2],"w");
 	writeHeader(f2,tab_node[0]);
 	encode(tabCode,nb_elem2,f,f2);
 	fclose(f);
 	fclose(f2);
-	//execl("dot","-Tpng -o truc.png truc.dot",NULL);
 	return 0;
 }
