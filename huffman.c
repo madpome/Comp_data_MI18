@@ -125,7 +125,7 @@ char * aux(node src, char c, char * s){
 	}
 	p=strcpy(p,s);
 	p=strcat(p,"0");
-	char * k;
+	char * k = calloc(1,1);
 	if(src.left != NULL) {
 		k = aux(*src.left, c, p);
 	}
