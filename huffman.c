@@ -457,6 +457,7 @@ int main(int argc, char ** argv){
 	charCode * tabCode = malloc(nb_elem2*sizeof(charCode));
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
+		printf("%c\n",tabCode[i].c);
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
 		printf("%s\n",getCode(*tab_node,tabCode[i].c));
 	}
