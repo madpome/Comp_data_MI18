@@ -315,6 +315,7 @@ void writeHeader(FILE * output,node src){
 	fseek(output,1,SEEK_CUR);
 	//et ici on écrit l'arbre
 	uint16_t x = htons(src.id);
+	printf("%d\n",x);
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
