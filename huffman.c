@@ -135,7 +135,6 @@ char * aux(node src, char c, char * s){
 			k=aux(*src.right,c,p);
 		}
 	}
-	free(p);
 	return k;
 
 }
