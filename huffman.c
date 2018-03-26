@@ -21,7 +21,7 @@ typedef struct node {
 
 typedef struct montableau {
 	// c = caractere
-	unsigned char c;
+	char c;
 	// v = nombre d'occurence
 	int v;
 }montableau;
