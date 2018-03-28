@@ -103,6 +103,7 @@ int getNbDernierBits (int desc) {
 	unsigned char *receptacle = calloc (nbALire, sizeof(unsigned char));
 	read (desc, receptacle, nbALire*sizeof(unsigned char));
 	int nbBits = receptacle[0] * power(256, 0);
+    printf("aah %d\n",nbBits);
 	free(receptacle);
 	return nbBits;
 }

@@ -411,6 +411,12 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 		fseek(output,0,SEEK_SET);
 		fseek(output,4,SEEK_SET);
 		fwrite(&idx,1,1,output);
+		printf("aaag %d\n",idx);
+	}else{
+		fseek(output,4,SEEK_SET);
+		idx=8;
+		fwrite(&idx,1,1,output);
+		printf("aaag %d\n",idx);
 	}
 }
 int main(int argc, char ** argv){
