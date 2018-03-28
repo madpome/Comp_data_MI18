@@ -21,7 +21,7 @@ typedef struct node {
 
 typedef struct montableau {
 	// c = caractere
-	char c;
+	unsigned char c;
 	// v = nombre d'occurence
 	int v;
 }montableau;
@@ -125,7 +125,7 @@ char * aux(node src, char c, char * s){
 	}
 	p=strcpy(p,s);
 	p=strcat(p,"0");
-	char * k = calloc(1,1);
+	char * k;
 	if(src.left != NULL) {
 		k = aux(*src.left, c, p);
 	}
@@ -457,10 +457,7 @@ int main(int argc, char ** argv){
 	charCode * tabCode = malloc(nb_elem2*sizeof(charCode));
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
-		printf("%c\n",tabCode[i].c);
-		puts("eeeeeeeeeeeeeeeee");
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
-		printf("%s\n",getCode(*tab_node,tabCode[i].c));
 	}
 	char *s;
 	close(fd);
