@@ -81,6 +81,7 @@ void insert_sort(node * tab, int nb_elem){
  */
 node* fusionne_deux_premiers(node *tab, int * nb_elem, int *nb_noeud){
 	node *t = malloc (sizeof(node)*(*nb_elem-1));
+	t[0].lettre = '\0';
 	t[0].left = &tab[0];
 	t[0].right = &tab[1];
 	t[0].weight = tab[0].weight + tab[1].weight;
@@ -125,7 +126,7 @@ char * aux(node src, char c, char * s){
 	}
 	p=strcpy(p,s);
 	p=strcat(p,"0");
-	char * k;
+	char * k=NULL;
 	if(src.left != NULL) {
 		k = aux(*src.left, c, p);
 	}
@@ -135,6 +136,7 @@ char * aux(node src, char c, char * s){
 			k=aux(*src.right,c,p);
 		}
 	}
+	free(p);
 	return k;
 
 }
@@ -300,6 +302,7 @@ void write_node(FILE * output, node x){
 		*id=0;
 		fwrite(id,2,1,output);
 	}
+	free(id);
 	if(x.left!=NULL){
 		write_node(output,*x.left);
 	}
@@ -341,6 +344,7 @@ void writeHeader(FILE * output,node src){
 	if(src.right!=NULL){
 		write_node(output,*src.right);
 	}
+	free(id);
 }
 void encode(charCode * tab,int len, FILE * f,FILE * output){
 	fseek(f,0,SEEK_SET);
@@ -405,6 +409,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 				idx ++;
 			}
 		}
+		free(code);
 	}
 
 	//Si a la fin j'ai fini d'écrire mais que j'ai pas encore envoyé alors je le fais
@@ -481,5 +486,13 @@ int main(int argc, char ** argv){
 	encode(tabCode,nb_elem2,f,f2);
 	fclose(f);
 	fclose(f2);
+	free(c);
+	for(int i = 0;i<nb_elem2;i++){
+		free(tabCode[i].code);
+	}
+	free(tab_node);
+	free(tab);
+	free(tabCode);
+	free(s);
 	return 0;
 }
