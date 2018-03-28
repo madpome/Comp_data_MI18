@@ -40,7 +40,7 @@ int main (int taille, char *args[]) {
 	}
 	filename = args[2];
 	fprintf(stdout, "On a un header correct\n");
-	int descout = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IRGRP | S_IROTH);
+	int descout = open(filename, O_CREAT | O_RDWR,S_IRWXU);
 	// Ici, on est placé juste avant les premiers octets codés, et on est sur que l'en tete est correct
 	if (descout <= 0) {
 		perror("Error opening the output");
@@ -70,7 +70,7 @@ void huffmanDecodeur (int desc, int descout) {
 			lseek (desc, -1, SEEK_CUR);
 		}
 
-		//for (int i = 7; i>=0; i--) {	
+		//for (int i = 7; i>=0; i--) {
 		for (int i = 0; i<nbBits; i++) {
 			int dir = (((oct<<(7-i))>>7)&1);
 			//fprintf(stdout, "%d", dir);
@@ -87,7 +87,7 @@ void huffmanDecodeur (int desc, int descout) {
 				if (tab[index].right != -1) { // ie on n'est pas dans une feuille
 
 				} else {
-					write (descout, &(tab[index].character), sizeof(char));	
+					write (descout, &(tab[index].character), sizeof(char));
 					//fprintf(stderr, "az : id = %d, char = %c |", tab[index].id, tab[index].character);
 					index = lentab - 1;
 				}
@@ -99,7 +99,7 @@ void huffmanDecodeur (int desc, int descout) {
 
 int getNbDernierBits (int desc) {
 	int nbALire = 1;
-	lseek (desc, 5*sizeof(unsigned char), SEEK_SET);
+	lseek (desc, 4*sizeof(unsigned char), SEEK_SET);
 	unsigned char *receptacle = calloc (nbALire, sizeof(unsigned char));
 	read (desc, receptacle, nbALire*sizeof(unsigned char));
 	int nbBits = receptacle[0] * power(256, 0);
@@ -235,4 +235,3 @@ int power (int i, int n) {
 		return i*power(i, n-1);
 	}
 }
-
