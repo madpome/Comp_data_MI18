@@ -98,21 +98,21 @@ node* fusionne_deux_premiers(node *tab, int * nb_elem, int *nb_noeud){
 
 
 // Ajoute le caractere c dans le tableai tab
-void add_tab(montableau * tab, unsigned char c, int * size, int * nb_elem){
+void add_tab(montableau ** tab, unsigned char c, int * size, int * nb_elem){
 	for(int i = 0; i<*nb_elem; i++) {
 		// On a trouve c dans tab
-		if(tab[i].c == c) {
-			tab[i].v++;
+		if((*tab)[i].c == c) {
+			(*tab)[i].v++;
 			return;
 		}
 	}
 	//Si il n'est pas dedans il faut l'ajouter;
-	tab[*nb_elem].c = c;
-	tab[*nb_elem].v = 1;
+	(*tab)[*nb_elem].c = c;
+	(*tab)[*nb_elem].v = 1;
 	(*nb_elem)++;
 	if((*nb_elem) == (*size)) {
 		(*size)*=2;
-		tab = realloc(tab, (*size)*sizeof(montableau));
+		*tab = realloc(*tab, (*size)*sizeof(montableau));
 	}
 }
 
@@ -285,7 +285,7 @@ void write_node(FILE * output, node x){
 	uint16_t i = htons(x.id);
 	fwrite(&i,2,1,output);
 	fwrite(&(x.lettre),1,1,output);
-	int * id = malloc(2);
+	uint16_t * id = malloc(sizeof *id);
 	if(x.left != NULL){
 		*id=htons((*x.left).id);
 		fwrite(id,2,1,output);
@@ -320,7 +320,7 @@ void writeHeader(FILE * output,node src){
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
 	fwrite(&(src.lettre),1,1,output);
-	int * id = malloc(2);
+	uint16_t *id = malloc(sizeof *id);
 	if(src.left != NULL){
 		*id=htons((*src.left).id);
 		fwrite(id,2,1,output);
@@ -345,6 +345,7 @@ void writeHeader(FILE * output,node src){
 void encode(charCode * tab,int len, FILE * f,FILE * output){
 	fseek(f,0,SEEK_SET);
 	char c = 0;
+	int cc;
 	unsigned char u0 = 0 | (1<<0);
 	unsigned char u1 = 0 | (1<<1);
 	unsigned char u2 = 0 | (1<<2);
@@ -358,7 +359,8 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	int wrote = 0;
 	char * code = calloc(1,1);
 	//mettre le code dans le fichier de sortie
-	while((c=fgetc(f))!=EOF){
+	while((cc=fgetc(f))!=EOF){
+		c=cc;
 		for(int i = 0;i< len; i++){
 			if(tab[i].c == c){
 				code = tab[i].code;
@@ -429,15 +431,14 @@ int main(int argc, char ** argv){
 		perror ("Error :");
 		return -1;
 	}
-	unsigned char * c = malloc(1);
+	unsigned char * c = malloc(1*sizeof(char));
 	int nb_elem = 0;
 	int nb_noeud = 0;
 	int size = 1;
 	montableau * tab = malloc(1*sizeof(montableau));
-
 	// On lit le fichier et on compte les occurences dans le tableau tab.
 	while(read(fd, c, 1)>0) {
-		add_tab(tab, *c, &size, &nb_elem);
+		add_tab(&tab, *c, &size, &nb_elem);
 	}
 
 	//Maintenant il faut le trier
