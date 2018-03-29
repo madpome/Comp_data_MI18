@@ -1,8 +1,8 @@
 #!/bin/bash
-TEST_FILE="Explod.png MobyDick.txt"
-WD="test_huff_stat/"
-HUFF="./huffman"
-DECOD="./huffmanDecod"
+TEST_FILE="Explod.png MobyDick.txt AmerikastaPalatessa.txt Chinois.txt Florante.txt image1.jpeg image2.jpeg image3.png image4.png OurFriendtheDog.txt"
+WD="~/CompressionDonnées/test_huff_stat/"
+HUFF="~/CompressionDonnées/huffman"
+DECOD="~/CompressionDonnées/huffmanDecod"
 echo "Testing script for static huffman compressor"
 
 for file in $TEST_FILE
@@ -13,5 +13,12 @@ do
     echo ""
     echo "Decompressing $file.comp to $file.huffed"
     eval "$DECOD $WD$file.comp $WD$file.huffed"
+    echo ""
+    echo "Removing $WD$file.comp"
+    eval "rm -f $WD$file.comp"
+    echo ""
+    echo "Diff between $file and $file.huffed"
+    eval "diff $WD$file $WD$file.huffed"
+    echo "End diff"
 done
 exit 0
