@@ -482,8 +482,8 @@ int main(int argc, char ** argv){
 	FILE * f =fopen("truc.dot","w");
 	createDOT(f,*tab_node);
 	fclose(f);
-	s = calloc(100,sizeof(char));
-	sprintf(s,"dot -Tpng -o %s.png truc.dot",argv[2]);
+	s = calloc(1024,sizeof(char));
+	sprintf(s,"dot -Gcharset=latin1 -Tpng -o %s.png truc.dot",argv[2]);
 	system(s);
 	remove("truc.dot");
 	f = fopen(argv[1],"r");
