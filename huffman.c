@@ -12,7 +12,7 @@
 
 typedef struct node {
 	int id;
-	char lettre;
+	char *lettre;
 	//Si il n'a pas de fils alors c'est une lettre, sinon un noeud normal
 	struct node * left;
 	struct node * right;
@@ -40,7 +40,7 @@ void affiche (node *tab) {
 	if (tab->right != NULL)
 		rid = tab->right->id;
 
-	printf("%d\t%c\t%d\t%d\t%d\n", tab->id, tab->lettre, tab->weight, lid, rid);
+	printf("%d\t%c\t%d\t%d\t%d\n", tab->id, *tab->lettre, tab->weight, lid, rid);
 
 	// On affiche l'arbre droit si il existe;
 	if (rid != -1) {
@@ -81,7 +81,7 @@ void insert_sort(node * tab, int nb_elem){
  */
 node* fusionne_deux_premiers(node *tab, int * nb_elem, int *nb_noeud){
 	node *t = malloc (sizeof(node)*(*nb_elem-1));
-	t[0].lettre = '\0';
+	t[0].lettre = NULL;
 	t[0].left = &tab[0];
 	t[0].right = &tab[1];
 	t[0].weight = tab[0].weight + tab[1].weight;
@@ -120,7 +120,7 @@ void add_tab(montableau ** tab, unsigned char c, int * size, int * nb_elem){
 
 char * aux(node src, char c, char * s){
 	char * p = calloc((strlen(s)+2),sizeof(char));
-	if(src.lettre == c) {
+	if(src.lettre != NULL && *src.lettre == c) {
 		strcpy(p,s);
 		return p;
 	}
@@ -158,7 +158,7 @@ char * getCode(node src, char c){
 
 // dir indique si le noeud est un noeud droit ou gauche (0 ou 1)
 char *auxGetCode2 (node root, char c, char dir) {
-	if (root.lettre == c) {
+	if (root.lettre!=NULL && *root.lettre == c) {
 		char *q = calloc (2, sizeof(char));
 		q[0] = dir;
 		return q;
@@ -186,28 +186,28 @@ void auxDOT(FILE * f, node root){
 	char buff[100]; //Je pense pas que ca fera plus de 100 char par ligne
 	memset(buff,0,100);
 	if(root.left != NULL) {
-		if(root.lettre =='\0' && root.left->lettre =='\0') {
+		if(root.lettre ==NULL && root.left->lettre ==NULL) {
 			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->weight);
-		}else if(root.lettre == '\0' && root.left->lettre !='\0') {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->lettre,root.left->weight);
-		}else if(root.lettre != '\0' && root.left->lettre =='\0') {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.lettre,root.weight,root.left->id,root.left->weight);
+		}else if(root.lettre == NULL && root.left->lettre !=NULL) {
+			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,*root.left->lettre,root.left->weight);
+		}else if(root.lettre != NULL && root.left->lettre ==NULL) {
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,root.left->weight);
 		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.lettre,root.weight,root.left->id,root.left->lettre,root.left->weight);
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,*root.left->lettre,root.left->weight);
 		}
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
 		auxDOT(f,*root.left);
 	}
 	if(root.right != NULL) {
-		if(root.lettre =='\0' && root.right->lettre =='\0') {
+		if(root.lettre ==NULL && root.right->lettre ==NULL) {
 			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->weight);
-		}else if(root.lettre == '\0' && root.right->lettre !='\1') {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->lettre,root.right->weight);
-		}else if(root.lettre != '\0' && root.right->lettre =='\0') {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.lettre,root.weight,root.right->id,root.right->weight);
+		}else if(root.lettre == NULL && root.right->lettre !=NULL) {
+			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,*root.right->lettre,root.right->weight);
+		}else if(root.lettre != NULL && root.right->lettre ==NULL) {
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,root.right->weight);
 		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.lettre,root.weight,root.right->id,root.right->lettre,root.right->weight);
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,*root.right->lettre,root.right->weight);
 		}
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
@@ -222,28 +222,28 @@ void createDOT(FILE * f, node root){
 	fwrite(buff,sizeof(char), strlen(buff), f);
 	memset(buff,0,100);
 	if(root.left != NULL) {
-		if(root.lettre =='\0' && root.left->lettre =='\0') {
+		if(root.lettre ==NULL && root.left->lettre ==NULL) {
 			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->weight);
-		}else if(root.lettre == '\0' && root.left->lettre !='\0') {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->lettre,root.left->weight);
-		}else if(root.lettre != '\0' && root.left->lettre =='\0') {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.lettre,root.weight,root.left->id,root.left->weight);
+		}else if(root.lettre == NULL && root.left->lettre !=NULL) {
+			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,*root.left->lettre,root.left->weight);
+		}else if(root.lettre != NULL && root.left->lettre ==NULL) {
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,root.left->weight);
 		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.lettre,root.weight,root.left->id,root.left->lettre,root.left->weight);
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,*root.left->lettre,root.left->weight);
 		}
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
 		auxDOT(f,*root.left);
 	}
 	if(root.right != NULL) {
-		if(root.lettre =='\0' && root.right->lettre =='\0') {
+		if(root.lettre ==NULL && root.right->lettre ==NULL) {
 			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->weight);
-		}else if(root.lettre == '\0' && root.right->lettre !='\1') {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->lettre,root.right->weight);
-		}else if(root.lettre != '\0' && root.right->lettre =='\0') {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.lettre,root.weight,root.right->id,root.right->weight);
+		}else if(root.lettre == NULL && root.right->lettre !=NULL) {
+			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,*root.right->lettre,root.right->weight);
+		}else if(root.lettre != NULL && root.right->lettre ==NULL) {
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,root.right->weight);
 		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.lettre,root.weight,root.right->id,root.right->lettre,root.right->weight);
+			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,*root.right->lettre,root.right->weight);
 		}
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
@@ -261,7 +261,7 @@ void createDOT(FILE * f, node root){
 
  */
 char *getCode2 (node root, char c) {
-	if (root.lettre == c) {
+	if (root.lettre != NULL && *root.lettre == c) {
 		// Impossible qu'on arrive ici a moins de compresser un fichier a un caractere
 		char *a = calloc (2, sizeof(char));
 		a[0] = '0';
@@ -285,8 +285,13 @@ char *getCode2 (node root, char c) {
 }
 void write_node(FILE * output, node x){
 	uint16_t i = htons(x.id);
+	char c = 0;
 	fwrite(&i,2,1,output);
-	fwrite(&(x.lettre),1,1,output);
+	if(x.lettre == NULL){
+		fwrite(&c,1,1,output);
+	}else{
+		fwrite(x.lettre,1,1,output);
+	}
 	uint16_t * id = malloc(sizeof *id);
 	if(x.left != NULL){
 		*id=htons((*x.left).id);
@@ -322,7 +327,12 @@ void writeHeader(FILE * output,node src){
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
-	fwrite(&(src.lettre),1,1,output);
+	char c = 0;
+	if(src.lettre == NULL){
+		fwrite(&c,1,1,output);
+	}else{
+		fwrite(src.lettre,1,1,output);
+	}
 	uint16_t *id = malloc(sizeof *id);
 	if(src.left != NULL){
 		*id=htons((*src.left).id);
@@ -453,7 +463,9 @@ int main(int argc, char ** argv){
 	// On initialise le tableau de noeud avec chaque element du tableau de caractere.
 	for(int i = 0; i<nb_elem; i++) {
 		tab_node[i].id = i+1;
-		tab_node[i].lettre = tab[i].c;
+		tab_node[i].lettre = malloc(1);
+		*(tab_node[i].lettre) = tab[i].c;
+		printf("|%c|\n",*(tab_node[i].lettre));
 		tab_node[i].weight = tab[i].v;
 		tab_node[i].left = NULL;
 		tab_node[i].right = NULL;
@@ -463,13 +475,13 @@ int main(int argc, char ** argv){
 		tab_node = fusionne_deux_premiers(tab_node, &nb_elem, &nb_noeud);
 		insert_sort(tab_node, nb_elem);
 	}
-
 	//Il faudrait créer un tableau de correspondance charactere/code
 	//Normalement apres ca on a l'arbre
 	charCode * tabCode = malloc(nb_elem2*sizeof(charCode));
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
+		printf("[%c] : %s\n",tabCode[i].c,tabCode[i].code);
 	}
 	char *s;
 	close(fd);
