@@ -319,11 +319,9 @@ void write_node(FILE * output, node x){
 void writeHeader(FILE * output,node src){
 	fseek(output,0,SEEK_SET);
 	fwrite("HSMI",1,4,output);
-	printf("%d\n",src.id);
 	fseek(output,1,SEEK_CUR);
 	//et ici on écrit l'arbre
 	uint16_t x = htons(src.id);
-	printf("%d\n",x);
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
 	fwrite(&x,2,1,output);
@@ -428,12 +426,10 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 		fseek(output,0,SEEK_SET);
 		fseek(output,4,SEEK_SET);
 		fwrite(&idx,1,1,output);
-		printf("aaag %d\n",idx);
 	}else{
 		fseek(output,4,SEEK_SET);
 		idx=8;
 		fwrite(&idx,1,1,output);
-		printf("aaag %d\n",idx);
 	}
 }
 int main(int argc, char ** argv){
@@ -465,7 +461,6 @@ int main(int argc, char ** argv){
 		tab_node[i].id = i+1;
 		tab_node[i].lettre = malloc(1);
 		*(tab_node[i].lettre) = tab[i].c;
-		printf("|%c|\n",*(tab_node[i].lettre));
 		tab_node[i].weight = tab[i].v;
 		tab_node[i].left = NULL;
 		tab_node[i].right = NULL;
@@ -481,7 +476,6 @@ int main(int argc, char ** argv){
 	for(int i = 0; i<nb_elem2; i++){
 		tabCode[i].c = tab[nb_elem2-1-i].c;
 		tabCode[i].code = getCode(*tab_node,tabCode[i].c);
-		printf("[%c] : %s\n",tabCode[i].c,tabCode[i].code);
 	}
 	char *s;
 	close(fd);
