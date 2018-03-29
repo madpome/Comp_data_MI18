@@ -39,7 +39,6 @@ int main (int taille, char *args[]) {
 		return -1;
 	}
 	filename = args[2];
-	fprintf(stdout, "On a un header correct\n");
 	int descout = open(filename, O_CREAT | O_RDWR,S_IRWXU);
 	// Ici, on est placé juste avant les premiers octets codés, et on est sur que l'en tete est correct
 	if (descout <= 0) {
@@ -194,7 +193,6 @@ int checkEntete (int desc) {
 		}
 	}
 	free(receptacle);
-	fprintf(stderr, "nbNodes = %d, highestId = %d\n", nbNods, highestId);
 
 	// Ici, on est sur d'avoir le bon nombre de noeud.
 
