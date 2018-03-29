@@ -2,9 +2,10 @@
 TEST_FILE="Explod.png MobyDick.txt AmerikastaPalatessa.txt Chinois.txt \
 Florante.txt image1.jpeg image2.jpeg image3.png image4.png \
 OurFriendtheDog.txt"
-WD="~/CompressionDonnées/test_huff_stat/"
-HUFF="~/CompressionDonnées/huffman"
-DECOD="~/CompressionDonnées/huffmanDecod"
+CD="~/CompressionDonnées/"
+WD=$CD"test_huff_stat/"
+HUFF=$CD"huffman"
+DECOD=$HUFF"Decod"
 echo "Testing script for static huffman compressor"
 
 for file in $TEST_FILE
