@@ -54,7 +54,7 @@ int main (int taille, char *args[]) {
 }
 
 void huffmanDecodeur (int desc, int descout) {
-	int nbDernier = 7-getNbDernierBits(desc);
+	int nbDernier = getNbDernierBits(desc);//7-getNbDernierBits(desc);
 	int lentab = getNbNoeud (desc);
 	lettreCodeCouple *tab = construitArbre(desc, lentab);
 
@@ -73,7 +73,6 @@ void huffmanDecodeur (int desc, int descout) {
 		//for (int i = 7; i>=0; i--) {
 		for (int i = 0; i<nbBits; i++) {
 			int dir = (((oct<<(7-i))>>7)&1);
-			//fprintf(stdout, "%d", dir);
 			if (dir == 0) {
 				index = tab[index].left;
 				if (tab[index].left != -1) { // ie on n'est pas dans une feuille
@@ -103,7 +102,6 @@ int getNbDernierBits (int desc) {
 	unsigned char *receptacle = calloc (nbALire, sizeof(unsigned char));
 	read (desc, receptacle, nbALire*sizeof(unsigned char));
 	int nbBits = receptacle[0] * power(256, 0);
-    printf("aah %d\n",nbBits);
 	free(receptacle);
 	return nbBits;
 }

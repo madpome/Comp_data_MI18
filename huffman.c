@@ -361,7 +361,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	unsigned char bitC = 0;
 	unsigned char idx = 0;
 	int wrote = 0;
-	char * code = calloc(1,1);
+	char * code = calloc(1,sizeof(char));
 	//mettre le code dans le fichier de sortie
 	while((cc=fgetc(f))!=EOF){
 		c=cc;
@@ -409,7 +409,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 				idx ++;
 			}
 		}
-		free(code);
+		//free(code);
 	}
 
 	//Si a la fin j'ai fini d'écrire mais que j'ai pas encore envoyé alors je le fais
@@ -476,11 +476,17 @@ int main(int argc, char ** argv){
 	FILE * f =fopen("truc.dot","w");
 	createDOT(f,*tab_node);
 	fclose(f);
-	s = calloc(100,1);
+	s = calloc(100,sizeof(char));
 	sprintf(s,"dot -Tpng -o %s.png truc.dot",argv[2]);
 	system(s);
 	remove("truc.dot");
 	f = fopen(argv[1],"r");
+	if (f == NULL) {
+		fprintf(stderr, "Error opening the file\n");
+		exit(-1);
+
+	}
+
 	FILE * f2 = fopen(argv[2],"w");
 	writeHeader(f2,tab_node[0]);
 	encode(tabCode,nb_elem2,f,f2);
