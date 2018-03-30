@@ -2,7 +2,7 @@
 TEST_FILE="Explod.png MobyDick.txt AmerikastaPalatessa.txt Chinois.txt \
 Florante.txt image1.jpeg image2.jpeg image3.png image4.png \
 OurFriendtheDog.txt"
-CD="~/CompressionDonnées/"
+CD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
 WD=$CD"test_huff_stat/"
 HUFF=$CD"huffman"
 DECOD=$HUFF"Decod"
