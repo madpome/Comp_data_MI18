@@ -184,33 +184,63 @@ char *auxGetCode2 (node root, char c, char dir) {
 }
 void auxDOT(FILE * f, node root){
 	char buff[100]; //Je pense pas que ca fera plus de 100 char par ligne
+	char buff2[100];
 	memset(buff,0,100);
+	memset(buff2,0,100);
 	if(root.left != NULL) {
-		if(root.lettre ==NULL && root.left->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->weight);
-		}else if(root.lettre == NULL && root.left->lettre !=NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,*root.left->lettre,root.left->weight);
-		}else if(root.lettre != NULL && root.left->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,root.left->weight);
-		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,*root.left->lettre,root.left->weight);
+		sprintf(buff, "\t\"%d", root.id);
+		if (root.lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.lettre));
 		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"->\"%d", root.weight,root.left->id);
+		strcat(buff, buff2);
+		if (root.left->lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.left->lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.left->lettre));
+		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"", (root.left->weight));
+		strcat(buff, buff2);
+		strcat(buff, " [label = \"0\"];\n");
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
+		memset(buff2, '\0', 100);
 		auxDOT(f,*root.left);
 	}
 	if(root.right != NULL) {
-		if(root.lettre ==NULL && root.right->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->weight);
-		}else if(root.lettre == NULL && root.right->lettre !=NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,*root.right->lettre,root.right->weight);
-		}else if(root.lettre != NULL && root.right->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,root.right->weight);
-		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,*root.right->lettre,root.right->weight);
+		sprintf(buff, "\t\"%d", root.id);
+		if (root.lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.lettre));
 		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"->\"%d", root.weight,root.right->id);
+		strcat(buff, buff2);
+		if (root.right->lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.right->lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.right->lettre));
+		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"", root.right->weight);
+		strcat(buff, buff2);
+		strcat(buff, " [label = \"1\"];\n");
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
+		memset(buff2, 0, 100);
 		auxDOT(f,*root.right);
 	}
 }
@@ -218,35 +248,67 @@ void auxDOT(FILE * f, node root){
 //f ouvert en w, début de fichier;
 void createDOT(FILE * f, node root){
 	char buff[100]; //Je pense pas que ca fera plus de 100 char par ligne
+	char buff2[100];
+	memset(buff,0,100);
 	sprintf(buff,"%s","digraph graphname {\n\"FORME id,char,poids\"\n");
 	fwrite(buff,sizeof(char), strlen(buff), f);
 	memset(buff,0,100);
+	memset(buff2,0,100);
 	if(root.left != NULL) {
-		if(root.lettre ==NULL && root.left->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,root.left->weight);
-		}else if(root.lettre == NULL && root.left->lettre !=NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,root.weight,root.left->id,*root.left->lettre,root.left->weight);
-		}else if(root.lettre != NULL && root.left->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,root.left->weight);
-		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"0\"];\n",root.id,*root.lettre,root.weight,root.left->id,*root.left->lettre,root.left->weight);
+		sprintf(buff2, "\t\"%d", root.id);
+		strcat(buff, buff2);
+		if (root.lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.lettre));
 		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"->\"%d", root.weight,root.left->id);
+		strcat(buff, buff2);
+		if (root.left->lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.left->lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.left->lettre));
+		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"", root.left->weight);
+		strcat(buff, buff2);
+		strcat(buff, " [label = \"0\"];\n");
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
+		memset(buff2, '\0', 100);
 		auxDOT(f,*root.left);
 	}
 	if(root.right != NULL) {
-		if(root.lettre ==NULL && root.right->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,root.right->weight);
-		}else if(root.lettre == NULL && root.right->lettre !=NULL) {
-			sprintf(buff,"\t\"%d,,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,root.weight,root.right->id,*root.right->lettre,root.right->weight);
-		}else if(root.lettre != NULL && root.right->lettre ==NULL) {
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,root.right->weight);
-		}else{
-			sprintf(buff,"\t\"%d,%c,%d\"->\"%d,%c,%d\" [label = \"1\"];\n",root.id,*root.lettre,root.weight,root.right->id,*root.right->lettre,root.right->weight);
+		sprintf(buff, "\t\"%d", root.id);
+		if (root.lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.lettre));
 		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"->\"%d", root.weight,root.right->id);
+		strcat(buff, buff2);
+		if (root.right->lettre == NULL) {
+			strcpy(buff2, ",,");
+		} else if (root.right->lettre == '\0') {
+			strcpy(buff2, ",-1,");
+		} else {
+			sprintf(buff2, ",\\%c,", *(root.right->lettre));
+		}
+		strcat(buff, buff2);
+		sprintf(buff2, "%d\"", root.right->weight);
+		strcat(buff, buff2);
+		strcat(buff, " [label = \"1\"];\n");
 		fwrite(buff,sizeof(char), strlen(buff), f);
 		memset(buff,0,100);
+		memset(buff2, 0, 100);
 		auxDOT(f,*root.right);
 	}
 	sprintf(buff,"}");
