@@ -155,33 +155,6 @@ char * getCode(node src, char c){
 
 
 
-
-// dir indique si le noeud est un noeud droit ou gauche (0 ou 1)
-char *auxGetCode2 (node root, char c, char dir) {
-	if (root.lettre!=NULL && *root.lettre == c) {
-		char *q = calloc (2, sizeof(char));
-		q[0] = dir;
-		return q;
-	}
-	if (root.left == NULL) {
-		// Si la lettre de root n'est pas c, et que root est une feuille
-		// On a directement que root.right == NULL aussi car l'arbre est complet
-		char *a = calloc (2, sizeof(char));
-		a[0] = '2';
-		return a;
-	} else {
-		// On lit la gauche
-		char *s = auxGetCode2(*(root.left), c, '0');
-		if (s[strlen(s)-1] == '2') {
-			// Si on rencontre un '2', alors c n'est pas dans la gauche, donc on va a droite
-			s = auxGetCode2(*(root.right), c, '1');
-		}
-		char *p = calloc (1+strlen(s), sizeof(char));
-		p[0] = dir;
-		strcat(p, s);
-		return p;
-	}
-}
 void auxDOT(FILE * f, node root){
 	char buff[100]; //Je pense pas que ca fera plus de 100 char par ligne
 	char buff2[100];
@@ -314,37 +287,6 @@ void createDOT(FILE * f, node root){
 	sprintf(buff,"}");
 	fwrite(buff,sizeof(char),strlen(buff),f);
 }
-
-
-// Permet d'avoir le code de c
-/* Principe de l'algo :
-   Regarde si c est dans l'arbre gauche (la chaine contient 2 a la fin si il n'y est pas.
-   Si c est dans la gauche, on renvoit la chaine de gauche, sinon on renvois la chaine de droite.
-
- */
-char *getCode2 (node root, char c) {
-	if (root.lettre != NULL && *root.lettre == c) {
-		// Impossible qu'on arrive ici a moins de compresser un fichier a un caractere
-		char *a = calloc (2, sizeof(char));
-		a[0] = '0';
-		return a;
-	}
-	if (root.left != NULL) {
-		char *leftStr = auxGetCode2(*(root.left), c, '0');
-		if (leftStr[strlen(leftStr)-1] == '2') {
-			return auxGetCode2(*(root.right), c, '1');
-		} else {
-			return leftStr;
-		}
-	} else {
-		char *res = calloc (2, sizeof(char));
-		res[0] = '2';
-		return res;
-	}
-
-	// Impossible qu'on arrive ici : pour eviter le warning
-	return NULL;
-}
 void write_node(FILE * output, node x){
 	uint16_t i = htons(x.id);
 	char c = 0;
@@ -420,14 +362,10 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 	fseek(f,0,SEEK_SET);
 	char c = 0;
 	int cc;
-	unsigned char u0 = 0 | (1<<0);
-	unsigned char u1 = 0 | (1<<1);
-	unsigned char u2 = 0 | (1<<2);
-	unsigned char u3 = 0 | (1<<3);
-	unsigned char u4 = 0 | (1<<4);
-	unsigned char u5 = 0 | (1<<5);
-	unsigned char u6 = 0 | (1<<6);
-	unsigned char u7 = 0 | (1<<7);
+	unsigned char bitTab[8];
+	for(int i = 0;i<8;i++){
+		bitTab[i] = 0 | (1<<i);
+	}
 	unsigned char bitC = 0;
 	unsigned char idx = 0;
 	int wrote = 0;
@@ -443,32 +381,7 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 		}
 		//code n'est forcement pas nulle
 		for(int j = 0; j<strlen(code);j++){
-			switch(idx){
-				case 0:
-					bitC |= ((code[j]=='1')?u0:bitC);
-					break;
-				case 1:
-					bitC |= ((code[j]=='1')?u1:bitC);
-					break;
-				case 2:
-					bitC |= ((code[j]=='1')?u2:bitC);
-					break;
-				case 3:
-					bitC |= ((code[j]=='1')?u3:bitC);
-					break;
-				case 4:
-					bitC |= ((code[j]=='1')?u4:bitC);
-					break;
-				case 5:
-					bitC |= ((code[j]=='1')?u5:bitC);
-					break;
-				case 6:
-					bitC |= ((code[j]=='1')?u6:bitC);
-					break;
-				case 7:
-					bitC |= ((code[j]=='1')?u7:bitC);
-					break;
-			}
+			bitC |= ((code[j]=='1')?bitTab[idx]:bitC);
 			if(idx == 7){
 				idx = 0;
 				fwrite(&bitC,1,1,output);
@@ -479,7 +392,6 @@ void encode(charCode * tab,int len, FILE * f,FILE * output){
 				idx ++;
 			}
 		}
-		//free(code);
 	}
 
 	//Si a la fin j'ai fini d'écrire mais que j'ai pas encore envoyé alors je le fais
