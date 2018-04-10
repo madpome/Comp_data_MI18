@@ -1,0 +1,15 @@
+Spécification de l'en tête du fichier compresé avec Huffman Dynamique
+
+1.[MAGIC NUMBER sur 4 octets]
+
+2.[NOMBRE DE BITS SUR LE DERNIER OCTET sur 1 octet]
+
+
++---+---+---+---+---+
+| Magic Number  | N |
++---+---+---+---+---+
+
+
+1. HDMI
+
+2. Nombre de bits sur le dernier octet
