@@ -1,39 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-
-typedef struct noeud {
-	// lettre code, -1 si vide
-	char lettre;
-	// dfg = id noeud fils gauche - id noeud courant, 0 si non existant
-	int dfg;
-	// dfd = id noeud fils droit - id noeud courant, 0 si non existant
-	int dfd;
-	// dp = id noeud pere - id noeud courant, 0 si non existant
-	int dp;
-	// poids du noeud
-	int poids;
-
-} noeud;
-
-noeud* setArbre ();
-void incrementePoidsPereCascade (noeud* arbre, int index, int len);
-noeud* addCharInTree (noeud* arbre, char c, int* nbNod);
-int contain (char *alreadyRead, char c, int nbChar);
-char* addCharInAlreadyRead(char * alreadyRead, char c, int* nbChar);
-void incrementChar(noeud* arbre, char c, int len);
-int searchChar(noeud* arbre, char c, int len);
-void reequilibre (noeud* arbre, int index, int len);
-void swap (int index1, int index2, noeud* arbre);
-void createDotNod (int desc, noeud* arbre, int index);
-void createDotFile (int desc, noeud* arbre, int len);
-void deplacement (noeud* arbre, int nbNod, int k);
-void afficheNod (noeud nod);
+#include "arbre.h"
 
 void afficheNod (noeud nod) {
 	printf("lettre = %c, dfg = %d, dfd = %d, dp = %d, poids = %d\n",nod.lettre, nod.dfg, nod.dfd, nod.dp, nod.poids);
@@ -69,7 +34,7 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, charac, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
 		memset(charac, '\0', 10*sizeof(char));
-		
+
 		if (arbre[ig].lettre != -1) {
 			sprintf(charac, "%c", arbre[ig].lettre);
 		} else if (arbre[ig].lettre == 0) {
@@ -78,13 +43,13 @@ void createDotNod (int desc, noeud* arbre, int index) {
 			charac = strcat(charac, "");
 		}
 		sprintf(ligne, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, charac, arbre[ig].poids, ig+arbre[ig].dp);
-		write(desc, ligne, strlen(ligne)*sizeof(char));	
+		write(desc, ligne, strlen(ligne)*sizeof(char));
 
 
 		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, charac, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
 		memset(charac, '\0', 10*sizeof(char));
-		
+
 		if (arbre[id].lettre != -1) {
 			sprintf(charac, "%c", arbre[id].lettre);
 		} else if (arbre[ig].lettre == 0) {
@@ -93,7 +58,7 @@ void createDotNod (int desc, noeud* arbre, int index) {
 			charac = strcat(charac, "");
 		}
 		sprintf(ligne, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, charac, arbre[id].poids, id+arbre[id].dp);
-		write(desc, ligne, strlen(ligne)*sizeof(char));	
+		write(desc, ligne, strlen(ligne)*sizeof(char));
 
 		free(charac);
 		free(ligne);
@@ -221,7 +186,7 @@ noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 	printf("addCharInTree c = %c\n", c);
 
 
-	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));	
+	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));
 	deplacement(arbre, *nbNod, 2);
 	(*nbNod)+=2;
 
@@ -343,11 +308,11 @@ int main (int taille, char *args[]) {
 				// On a deja vu le caractere avant
 				incrementChar(arbre, readLetter, nbNod);
 			}
-		
+
 	}
 
 
-	
+
 	int descdot = open("qwe.dot", O_WRONLY);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
