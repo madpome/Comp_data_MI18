@@ -14,7 +14,7 @@ int readLetter(int descR, int descW, noeud *arbre, int * nbNode){
     if(r <= 0){
         //Ca ne devrait pas arriver, il y a une erreur
         fprintf(stderr,"Erreur lecture\n");
-        exit(-1);
+        return -3;
     }
     if(c != 0){
         //Fin du fichier
@@ -24,7 +24,7 @@ int readLetter(int descR, int descW, noeud *arbre, int * nbNode){
     if(r <= 0){
         //Ca ne devrait pas arriver, il y a une erreur
         fprintf(stderr,"Erreur lecture2\n");
-        exit(-1);
+        return -2;
     }
     //On l'ajoute à l'arbre
     addCharInTree(arbre, c, nbNode);
@@ -57,7 +57,14 @@ int main(int argc, char **argv){
     }
     noeud *arbre = setArbre();
     int nbNode = 1;
-    readLetter(descRead, descWrite, arbre, &nbNode);
+    int r =readLetter(descRead, descWrite, arbre, &nbNode);
+    if(r==-3){
+        close(descRead);
+        close(descWrite);
+        return 0;
+    }else if(r == -2){
+        return -1;
+    }
 
     unsigned char c;
     int idx =0;
@@ -71,6 +78,7 @@ int main(int argc, char **argv){
         read(descRead, &c, 1);
         for(idx = 0;idx<8 ;idx++){
             //Si le bit a la pos idx est en 1
+            //Peut etre tester des cas ou y'a des erreurs ?
             if((c & bitTab[idx])== bitTab[idx]){
                 pos += cur.dfg;
             }else{
@@ -79,9 +87,22 @@ int main(int argc, char **argv){
             cur = arbre[pos];
             //On est a une lettre
             if(cur.dfg == 0 && cur.dfd==0){
-                write(descWrite, &cur.lettre, 1);
-                pos = nbNode-1;
-                cur=arbre[pos];
+                if(pos == 0){
+                    //Il faut lire une lettre
+                    r = readLetter(descRead, descWrite, arbre, &nbNode);
+                    if(r == -1){
+                        close(descRead);
+                        close(descWrite);
+                        return 0;
+                    }else if(r < 0){
+                        return -1;
+                    }
+                }else{
+                    incrementChar(arbre, c, nbNode);
+                    write(descWrite, &cur.lettre, 1);
+                    pos = nbNode-1;
+                    cur=arbre[pos];
+                }
             }
         }
 
