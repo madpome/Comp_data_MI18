@@ -1,15 +1,19 @@
-Spécification de l'en tête du fichier compresé avec Huffman Dynamique
+Spécification de l'en tête du fichier compressé avec Huffman Dynamique
 
 1.[MAGIC NUMBER sur 4 octets]
 
-2.[NOMBRE DE BITS SUR LE DERNIER OCTET sur 1 octet]
-
-
-+---+---+---+---+---+
-| Magic Number  | N |
-+---+---+---+---+---+
++---+---+---+---+
+| Magic Number  |
++---+---+---+---+
 
 
 1. HDMI
 
-2. Nombre de bits sur le dernier octet
+"abracadabra" serait codé en
+
+
+a0b00r0100c01100d01101100'cfin'
+
+avec les caractère codés sur 2 octets en BIG ENDIAN
+Le premier octet se comporte comme un char normal et le deuxième, s'il est different
+de 0 indique que nous sommes à la fin du codage, ici representé par cfin
