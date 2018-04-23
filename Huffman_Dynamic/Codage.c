@@ -1,4 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "arbre.h"
+
 
 void afficheNod (noeud nod) {
 	printf("lettre = %c, dfg = %d, dfd = %d, dp = %d, poids = %d\n",nod.lettre, nod.dfg, nod.dfd, nod.dp, nod.poids);
@@ -18,12 +26,12 @@ noeud* setArbre () {
 
 void createDotNod (int desc, noeud* arbre, int index) {
 	char * ligne = calloc (1024, sizeof(char));
+	char * ligneFils = calloc (1024, sizeof(char));
 	char * charac = calloc(10, sizeof(char));
 	int ig = index+arbre[index].dfg;
 	int id = index+arbre[index].dfd;
 
 	if (ig != index) {
-		printf("On est dans createDotNod l61\n");
 		if (arbre[index].lettre != -1) {
 			sprintf(charac, "%c", arbre[index].lettre);
 		} else if (arbre[index].lettre == 0) {
@@ -34,7 +42,7 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, charac, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
 		memset(charac, '\0', 10*sizeof(char));
-
+		
 		if (arbre[ig].lettre != -1) {
 			sprintf(charac, "%c", arbre[ig].lettre);
 		} else if (arbre[ig].lettre == 0) {
@@ -42,14 +50,13 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		} else {
 			charac = strcat(charac, "");
 		}
-		sprintf(ligne, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, charac, arbre[ig].poids, ig+arbre[ig].dp);
-		write(desc, ligne, strlen(ligne)*sizeof(char));
+		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, charac, arbre[ig].poids, ig+arbre[ig].dp);
+		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
 
 
-		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, charac, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
 		memset(charac, '\0', 10*sizeof(char));
-
+		
 		if (arbre[id].lettre != -1) {
 			sprintf(charac, "%c", arbre[id].lettre);
 		} else if (arbre[ig].lettre == 0) {
@@ -57,11 +64,12 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		} else {
 			charac = strcat(charac, "");
 		}
-		sprintf(ligne, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, charac, arbre[id].poids, id+arbre[id].dp);
-		write(desc, ligne, strlen(ligne)*sizeof(char));
+		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, charac, arbre[id].poids, id+arbre[id].dp);
+		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
 
 		free(charac);
 		free(ligne);
+		free(ligneFils);
 
 		createDotNod (desc, arbre, ig);
 		createDotNod (desc, arbre, id);
@@ -83,94 +91,109 @@ void createDotFile (int desc, noeud* arbre, int len) {
 
 void swap (int index1, int index2, noeud* arbre) {
 
-	noeud* noeud1 = &arbre[index1];
-	noeud* noeud2 = &arbre[index2];
+	noeud* noeud1 = &(arbre[index1]);
+	noeud* noeud2 = &(arbre[index2]);
 	noeud tmp = {noeud1->lettre, noeud1->dfg, noeud1->dfd,noeud1->dp,noeud1->poids};
-	//printf("\n\nswap index1, index2 = %d, %d\n", index1, index2);
-	//afficheNod(*noeud1);
-	//afficheNod(*noeud2);
+	
 
 
 	int n1fg = noeud1->dfg + index1;
 	int n1fd = noeud1->dfd + index1;
 	int n2fg = noeud2->dfg + index2;
 	int n2fd = noeud2->dfd + index2;
-	//printf("n1fg = %d, noeud1->dfg = %d, index1 = %d\n",n1fg, noeud1->dfg, index1);
+
 	// On met noeud1 dans noeud2
 	noeud1->lettre = noeud2->lettre;
 	if (noeud2->dfg != 0) {
+		// On est pas dans une feuille
 		noeud1->dfg = (index2 - index1 + noeud2->dfg);
 		noeud1->dfd = (index2 - index1 + noeud2->dfd);
-		arbre[n1fg].dp = index2 - n1fg;
-		arbre[n1fd].dp = index2 - n1fd;
-		printf("n1fg, n1fg.pere = %d, %d\n",n1fg, n1fg+arbre[n1fg].dp);
 	} else {
 		noeud1->dfg = 0;
 		noeud1->dfd = 0;
-		arbre[n1fg].dp = 0;
-		arbre[n1fd].dp = 0;
+	}
+	if (n1fg != index1) {
+		arbre[n1fg].dp = index2 - n1fg;
+		arbre[n1fd].dp = index2 - n1fd;
 	}
 	noeud1->poids = noeud2->poids;
+
 
 	// On met tmp dans noeud2
 	noeud2->lettre = tmp.lettre;
 	if (tmp.dfg != 0) {
 		noeud2->dfg = index1 - index2 + tmp.dfg;
 		noeud2->dfd = index1 - index2 + tmp.dfd;
-		arbre[n2fg].dp = index1 - n2fg;
-		arbre[n2fd].dp = index1 - n2fd;
 	} else {
 		noeud2->dfg = 0;
 		noeud2->dfd = 0;
-		arbre[n2fg].dp = 0;
-		arbre[n2fd].dp = 0;
+	}
+	if (n2fg != index2) {
+		arbre[n2fg].dp = index1 - n2fg;
+		arbre[n2fd].dp = index1 - n2fd;
 	}
 	noeud2->poids = tmp.poids;
 }
 
+int plusCroissant (noeud* arbre, int len) {
+	for (int i = 1; i<len; i++) {
+		if (arbre[i-1].poids > arbre[i].poids)
+			return 1;
+	}
+	return -1;
+}
+
 int rechercheEquilibre (noeud* arbre, int index, int len) {
 	// On cherche le plus grand index de poids inferieur a celui de arbre[index]
+	if (plusCroissant(arbre, len) < 0) {
+		return -1;
+	}
 	for (int i = len-1; i>index; i--) {
 		//printf("index = %d, arbre[%d].poids = %d, arbre[%d].poids = %d\n",index,i,arbre[i].poids,index,arbre[index].poids);
-		if (arbre[i].poids <= arbre[index].poids) {
+		if (arbre[i].poids < arbre[index].poids) {
 			return i;
 		}
 	}
 	return -1;
 }
 
-void reequilibre (noeud* arbre, int index, int len) {
+
+
+
+void reequilibre (noeud* arbre, int index, int len, int cas) {
+
 	int indexPerePetit = rechercheEquilibre(arbre, index, len);
-	printf("On est dans reequilibre indexPerePetit = %d\n", indexPerePetit);
-	if (indexPerePetit >= 0) {
-		swap(indexPerePetit, index, arbre);
-		int tmp = indexPerePetit;
-		indexPerePetit = index;
-		index = tmp;
-	}
-	arbre[index].poids++;
-
-	if (index != len && arbre[index].dp != 0) {
-		printf("arbre[%d].dp = %d\n\n",index,arbre[index].dp);
-		reequilibre(arbre, index+arbre[index].dp, len);
+	if (indexPerePetit > 0) {
+		printf("On a perdu l'equilibre, indexPerePetit = %d, index = %d\n", indexPerePetit, index);
+		swap(index, indexPerePetit, arbre);
+		int tmp = index;
+		index = indexPerePetit;	
+		indexPerePetit = tmp;
 	}
 
-}
 
-void incrementePoidsPereCascade (noeud* arbre, int index, int len) {
-//		arbre[index].poids++;
-
-	//Refait cette fonction et le swap
-	if (len != 3) {
-		reequilibre (arbre, index, len);
-	}
-	if (arbre[index].dp != 0) {
-		int indexPere = index + arbre[index].dp;
-		if (indexPere <= len) {
-			incrementePoidsPereCascade(arbre, indexPere, len);
+	int indexPere = index+arbre[index].dp;
+	if (indexPere != index) {
+		// On est pas dans la racine
+		if (cas == 1) {
+			arbre[indexPere].poids++;
+			reequilibre(arbre, indexPere,len, cas);
+		} else {
+			reequilibre(arbre, indexPere,len, cas);
+			arbre[indexPere].poids++;
 		}
 	}
 }
+
+
+
+void incrementChar(noeud* arbre, char c, int len) {
+	int indexDeC = searchChar(arbre, c, len);
+	int indexPapa = indexDeC + arbre[indexDeC].dp;
+	arbre[indexDeC].poids++;
+	reequilibre(arbre, indexDeC, len, 2);
+}
+
 
 void deplacement (noeud* arbre, int nbNod, int k) {
 	// Enfaite c'est un memmove, sauf que la fonction memmove ne fonctionnait pas
@@ -186,7 +209,7 @@ noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 	printf("addCharInTree c = %c\n", c);
 
 
-	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));
+	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));	
 	deplacement(arbre, *nbNod, 2);
 	(*nbNod)+=2;
 
@@ -203,7 +226,7 @@ noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 	arbre[1].dfg = 0;
 	arbre[1].dfd = 0;
 	arbre[1].dp = 1;
-	arbre[1].poids = 0;
+	arbre[1].poids = 1;
 
 
 	//On modifie les valeurs de fils de arbre[2] (l'ancien arbre[0])
@@ -212,20 +235,10 @@ noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 	arbre[2].poids++;
 
 
-	incrementePoidsPereCascade(arbre, 1, *nbNod);
-
+	reequilibre(arbre, 2, *nbNod, 1);
 	return arbre;
 
 }
-
-void incrementChar(noeud* arbre, char c, int len) {
-	int indexDeC = searchChar(arbre, c, len);
-	incrementePoidsPereCascade(arbre, indexDeC, len);
-
-}
-
-
-
 
 int searchChar(noeud* arbre, char c, int len) {
 	// On fait un simple parcours de tableau, on pourrait parcourir en tant qu'arbre,
@@ -308,11 +321,11 @@ int main (int taille, char *args[]) {
 				// On a deja vu le caractere avant
 				incrementChar(arbre, readLetter, nbNod);
 			}
-
+		
 	}
 
 
-
+	
 	int descdot = open("qwe.dot", O_WRONLY);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
@@ -327,9 +340,9 @@ int main (int taille, char *args[]) {
 	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
 	system(s);
 	free(s);
-	/*FILE * lol = fopen("qwe.dot","w'");
+	FILE * lol = fopen("qwe.dot","w'");
 	fclose(lol);
-	*/
+	
 	free(arbre);
 	close(descin);
 	return 0;
