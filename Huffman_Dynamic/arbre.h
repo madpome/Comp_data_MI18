@@ -28,7 +28,7 @@ int contain (char *alreadyRead, char c, int nbChar);
 char* addCharInAlreadyRead(char * alreadyRead, char c, int* nbChar);
 void incrementChar(noeud* arbre, char c, int len);
 int searchChar(noeud* arbre, char c, int len);
-void reequilibre (noeud* arbre, int index, int len);
+void reequilibre (noeud* arbre, int index, int len, int cas);
 void swap (int index1, int index2, noeud* arbre);
 void createDotNod (int desc, noeud* arbre, int index);
 void createDotFile (int desc, noeud* arbre, int len);
