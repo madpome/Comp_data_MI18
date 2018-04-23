@@ -12,8 +12,13 @@ Spécification de l'en tête du fichier compressé avec Huffman Dynamique
 "abracadabra" serait codé en
 
 
-a0b00r0100c01100d01101100'cfin'
+a0b00r0100c01100d01101100|1000'cfin'|
+les | et ' n'apparaissent pas dans le code,
+les || délimitent la sequnce pour reappeler a lire un caractere, suivi du
+caractere spécial
 
 avec les caractère codés sur 2 octets en BIG ENDIAN
+(Pour plus de facilité, nous lirons 2 fois 1 octet, si le premiere octet est
+different de 0, on peut s'arreter directement)
 Le premier octet se comporte comme un char normal et le deuxième, s'il est different
 de 0 indique que nous sommes à la fin du codage, ici representé par cfin
