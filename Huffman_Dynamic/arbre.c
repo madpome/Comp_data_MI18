@@ -46,9 +46,9 @@ void createDotNod (int desc, noeud* arbre, int index) {
 
 		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, characn, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
-		
+
 		if (arbre[ig].lettre == '"') {
-			characf = strcat (characf, "\\\""); 
+			characf = strcat (characf, "\\\"");
 		} else if (arbre[ig].lettre == 0) {
 			characf = strcat (characf, "-1");
 		} else if (arbre[ig].lettre != -1) {
@@ -58,12 +58,12 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		}
 
 		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, characf, arbre[ig].poids, ig+arbre[ig].dp);
-		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
+		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));
 
 
 		write(desc, ligne, strlen(ligne)*sizeof(char));
 		memset(characf, '\0', 10*sizeof(char));
-		
+
 		if (arbre[id].lettre == '"') {
 			characf = strcat (characf, "\\\"");
 		} else if (arbre[id].lettre == 0) {
@@ -74,7 +74,7 @@ void createDotNod (int desc, noeud* arbre, int index) {
 			characf = strcat(characf, "");
 		}
 		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, characf, arbre[id].poids, id+arbre[id].dp);
-		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
+		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));
 
 		free(characn);
 		free(characf);
@@ -104,7 +104,7 @@ void swap (int index1, int index2, noeud* arbre) {
 	noeud* noeud1 = &(arbre[index1]);
 	noeud* noeud2 = &(arbre[index2]);
 	noeud tmp = {noeud1->lettre, noeud1->dfg, noeud1->dfd,noeud1->dp,noeud1->poids};
-	
+
 
 
 	int n1fg = noeud1->dfg + index1;
@@ -196,7 +196,7 @@ void reequilibre (noeud* arbre, int index, int len, int cas) {
 	if (indexPerePetit > 0) {
 		swap(index, indexPerePetit, arbre);
 		int tmp = index;
-		index = indexPerePetit;	
+		index = indexPerePetit;
 		indexPerePetit = tmp;
 	}
 
@@ -234,8 +234,8 @@ void deplacement (noeud* arbre, int nbNod, int k) {
 
 noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 
-
-	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));	
+	printf("nb Noeud = %d\n",*nbNod);
+	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));
 	deplacement(arbre, *nbNod, 2);
 	(*nbNod)+=2;
 
@@ -258,8 +258,7 @@ noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
 	//On modifie les valeurs de fils de arbre[2] (l'ancien arbre[0])
 	arbre[2].dfg = -2;
 	arbre[2].dfd = -1;
-	arbre[2].poids++;
-
+	arbre[2].poids =1;
 
 	reequilibre(arbre, 2, *nbNod, 1);
 	return arbre;
