@@ -7,6 +7,69 @@
 #include <fcntl.h>
 #include "arbre.h"
 
+/*
+	On va definir plusieurs variables globales, qui serviront a ecrire en stream,
+	durant la construction de l'arbre 
+
+	buff :		c'est le tampon dans lequel on va ecrire
+	nbrDeBit :	nombre de bit qu'on a ecrit dans buff, on a 0 <= nbrDeBit <= 8. 
+				Quand on a nbrDeBit == 8, on ecrit
+	
+*/
+unsigned char buff = '\0';
+int nbrDeBit = 0;
+
+
+
+/* chain est un string de 1 et de 0, se terminant par \0
+	descout est un descripteur deja ouvert, ou on va ecrire
+*/
+void writeStringOfBit (int descout, char * chain) {
+	for (int i = 0; i<strlen(chain); i++) {
+		buff = buff<<1;
+		/*
+			On a shift les bits de 1 vers la gauche, avec un 0 au debut
+			Si on a un 1, on va passer le bit du debut a 1, sinon on ne fait rien
+		*/
+		if (chain[i] == '1') {
+			//chain[i] == 1
+			buff = buff|1;
+		}
+		nbrDeBit++;
+		if (nbrDeBit == 8) {
+			write(descout, &buff, 1*sizeof(unsigned char));
+			buff = '\0';
+			nbrDeBit = 0;
+		}
+	}
+}
+
+void writeAChar (int descout, char c) {
+	for (int i = 0; i<7; i++) {
+		buff = buff << 1;
+
+		char iemebit = (((c<<(7-i))>>7)&1); // On passe de 00001000 -> 00000001
+		buff = buff | iemebit;
+		nbrDeBit++;
+		if (nbrDeBit == 8) {
+			write(descout, &buff, 1*sizeof(unsigned char));
+			buff = '\0';
+			nbrDeBit = 0;
+		}
+	}
+}
+
+/*
+	fin :	si fin == 0, c'est pas le dernier caractere, donc on va ecrire 00000000 avant c
+			si fin == 1, c'est le dernier caractere, donc on va ecrire 11111111 avant c
+*/
+void writeACharWithPredec (int descout, char c, int fin) {
+
+	char premieroct = (fin == 0)?'\0':-1;
+	writeAChar(descout, premieroct);
+	writeAChar(descout, c);
+
+}
 
 void afficheNod (noeud nod) {
 	printf("lettre = %c, dfg = %d, dfd = %d, dp = %d, poids = %d\n",nod.lettre, nod.dfg, nod.dfd, nod.dp, nod.poids);
@@ -27,47 +90,56 @@ noeud* setArbre () {
 void createDotNod (int desc, noeud* arbre, int index) {
 	char * ligne = calloc (1024, sizeof(char));
 	char * ligneFils = calloc (1024, sizeof(char));
-	char * charac = calloc(10, sizeof(char));
+	char * characn = calloc(10, sizeof(char));
+	char * characf = calloc(10, sizeof(char));
 	int ig = index+arbre[index].dfg;
 	int id = index+arbre[index].dfd;
 
 	if (ig != index) {
-		if (arbre[index].lettre != -1) {
-			sprintf(charac, "%c", arbre[index].lettre);
+		if (arbre[index].lettre == '"') {
+			characn = strcat (characn, "\\\"");
 		} else if (arbre[index].lettre == 0) {
-			charac = strcat (charac, "-1");
+			characn = strcat (characn, "-1");
+		} else if (arbre[index].lettre != -1) {
+			sprintf(characn, "%c", arbre[index].lettre);
 		} else {
-			charac = strcat(charac, "");
+			characn = strcat(characn, "");
 		}
-		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, charac, arbre[index].poids, index+arbre[index].dp);
+
+		sprintf(ligne, "\"%d,%s,%d,%d\" -> ", index, characn, arbre[index].poids, index+arbre[index].dp);
 		write(desc, ligne, strlen(ligne)*sizeof(char));
-		memset(charac, '\0', 10*sizeof(char));
 		
-		if (arbre[ig].lettre != -1) {
-			sprintf(charac, "%c", arbre[ig].lettre);
+		if (arbre[ig].lettre == '"') {
+			characf = strcat (characf, "\\\""); 
 		} else if (arbre[ig].lettre == 0) {
-			charac = strcat (charac, "-1");
+			characf = strcat (characf, "-1");
+		} else if (arbre[ig].lettre != -1) {
+			sprintf(characf, "%c", arbre[ig].lettre);
 		} else {
-			charac = strcat(charac, "");
+			characf = strcat(characf, "");
 		}
-		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, charac, arbre[ig].poids, ig+arbre[ig].dp);
+
+		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"0\"];\n", ig, characf, arbre[ig].poids, ig+arbre[ig].dp);
 		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
 
 
 		write(desc, ligne, strlen(ligne)*sizeof(char));
-		memset(charac, '\0', 10*sizeof(char));
+		memset(characf, '\0', 10*sizeof(char));
 		
-		if (arbre[id].lettre != -1) {
-			sprintf(charac, "%c", arbre[id].lettre);
-		} else if (arbre[ig].lettre == 0) {
-			charac = strcat (charac, "-1");
+		if (arbre[id].lettre == '"') {
+			characf = strcat (characf, "\\\"");
+		} else if (arbre[id].lettre == 0) {
+			characf = strcat (characf, "-1");
+		} else if (arbre[id].lettre != -1) {
+			sprintf(characf, "%c", arbre[id].lettre);
 		} else {
-			charac = strcat(charac, "");
+			characf = strcat(characf, "");
 		}
-		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, charac, arbre[id].poids, id+arbre[id].dp);
+		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, characf, arbre[id].poids, id+arbre[id].dp);
 		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
 
-		free(charac);
+		free(characn);
+		free(characf);
 		free(ligne);
 		free(ligneFils);
 
@@ -115,6 +187,16 @@ void swap (int index1, int index2, noeud* arbre) {
 	if (n1fg != index1) {
 		arbre[n1fg].dp = index2 - n1fg;
 		arbre[n1fd].dp = index2 - n1fd;
+		//printf("Pas feuille 1\n");
+
+	} else {
+		// noeud1 est une feuille
+		/*printf("************************* 88 LOL 88 ******************* \n");
+
+		afficheNod(arbre[n1fg]);
+		afficheNod(arbre[n1fd]);
+		printf("\n\n");
+		*/
 	}
 	noeud1->poids = noeud2->poids;
 
@@ -122,15 +204,27 @@ void swap (int index1, int index2, noeud* arbre) {
 	// On met tmp dans noeud2
 	noeud2->lettre = tmp.lettre;
 	if (tmp.dfg != 0) {
+		// noeud1 n'est pas une feuille
 		noeud2->dfg = index1 - index2 + tmp.dfg;
 		noeud2->dfd = index1 - index2 + tmp.dfd;
 	} else {
+		// noeud1 est une feuille
 		noeud2->dfg = 0;
 		noeud2->dfd = 0;
 	}
 	if (n2fg != index2) {
+		//noeud2 n'est pas une feuille
 		arbre[n2fg].dp = index1 - n2fg;
 		arbre[n2fd].dp = index1 - n2fd;
+		//printf("Pas feuille 2\n");
+	} else {
+		// noeud2 est une feuille
+		/*
+		printf("$$$$$$$$$$$$$$$$$$ 99 LOL 99 $$$$$$$$$$$$$$$$$$$$$$ \n");
+		afficheNod(arbre[n2fg]);
+		afficheNod(arbre[n2fd]);
+		printf("\n\n");
+		*/
 	}
 	noeud2->poids = tmp.poids;
 }
@@ -164,7 +258,6 @@ void reequilibre (noeud* arbre, int index, int len, int cas) {
 
 	int indexPerePetit = rechercheEquilibre(arbre, index, len);
 	if (indexPerePetit > 0) {
-		printf("On a perdu l'equilibre, indexPerePetit = %d, index = %d\n", indexPerePetit, index);
 		swap(index, indexPerePetit, arbre);
 		int tmp = index;
 		index = indexPerePetit;	
@@ -187,8 +280,7 @@ void reequilibre (noeud* arbre, int index, int len, int cas) {
 
 
 
-void incrementChar(noeud* arbre, char c, int len) {
-	int indexDeC = searchChar(arbre, c, len);
+void incrementChar(noeud* arbre, int len, int indexDeC) {
 	arbre[indexDeC].poids++;
 	reequilibre(arbre, indexDeC, len, 2);
 }
@@ -205,7 +297,6 @@ void deplacement (noeud* arbre, int nbNod, int k) {
 }
 
 noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
-	printf("addCharInTree c = %c\n", c);
 
 
 	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));	
@@ -271,10 +362,60 @@ char* addCharInAlreadyRead(char * alreadyRead, char c, int* len) {
 }
 
 
+void writeHeader (int descout) {
+	write(descout, "HDMI", 4*sizeof(char));
+}
 
+int getLen (noeud* arbre) {
+	int i = 0;
+	while (arbre[i].dp != 0) {
+		i++;
+	}
+	return i;
+}
 
+char* getCodeFromiToRoot (noeud* arbre, int i) {
+	// l represente le nomble re de bloc allouee pour 
+	int l = 10;
+	char *res = calloc (l,sizeof(char));
+	int inteRes = 0;
+	noeud n1 = arbre[i];
+	int id = i;
+	int oldid = i;
+	//afficheNod(n1);
+	// Tant qu'on atteint pas la racine
+	while (n1.dp != 0) {
+		id = id + arbre[id].dp;
+		n1 = arbre[id];
 
+		if (inteRes == l) {
+			res = realloc (res, (l = 2*l)*sizeof(char));
+		}
 
+		if (id + arbre[id].dfg == oldid) {
+			res[inteRes++] = '0';
+		} else {
+			res[inteRes++] = '1';
+		}
+		oldid = id;
+	}
+	//printf("getCodeFromiToRoot |%s|   ---- inteRes = %d\n\n", res, inteRes);
+	res = realloc (res, inteRes*sizeof(char));
+	return res;
+}
+
+char* getCodeFrom0ToRoot (noeud* arbre) {
+	return getCodeFromiToRoot(arbre, 0); 
+
+}
+
+char* reverseString (char* str) {
+	char* res = calloc (strlen(str)+1, sizeof(char));
+	for (int i = 0; i<strlen(str); i++) {
+		res[strlen(str)-1-i] = str[i];
+	}
+	return res;
+}
 
 
 
@@ -294,11 +435,6 @@ int main (int taille, char *args[]) {
 	// nbNod = longueur de arbre;
 	int nbNod = 1;
 
-	for (int i = 0; i<nbNod; i++) {
-		printf("%d :: ", i+1);
-		afficheNod(arbre[i]);
-	}
-
 	char* alreadyRead = calloc (1, sizeof(char));
 	//nbChar = longueur de alreadyRead
 	int nbChar = 0;
@@ -307,25 +443,59 @@ int main (int taille, char *args[]) {
 	int step = 0;
 
 	char readLetter = '0';
-	while (read (descin, &readLetter, 1) == 1) {
-			step++;
-			printf("\nNombre de character lu : %d\n", step);
-			if (contain(alreadyRead, readLetter, nbChar) < 0) {
-				// On a jamais vu le caractere depuis le debut
-				printf("Avant ajout : nbChar = %d, nbNod = %d\n", nbChar, nbNod);
-				arbre = addCharInTree(arbre, readLetter, &nbNod);
-				alreadyRead = addCharInAlreadyRead(alreadyRead, readLetter, &nbChar);
-				printf("Apres ajout : nbChar = %d, nbNod = %d\n", nbChar, nbNod);
-			} else {
-				// On a deja vu le caractere avant
-				incrementChar(arbre, readLetter, nbNod);
-			}
-		
+
+
+	char destFilename [strlen(args[1]) + 9];
+	strcpy(destFilename, args[1]);
+	strcat(destFilename, ".HDMI.cmp");
+
+	FILE * lol1 = fopen(destFilename,"w");
+	fclose(lol1);
+
+
+	int descout = open(destFilename, O_CREAT | O_RDWR,S_IRWXU);
+
+	if (descout < 0) {
+		perror("Error opening the destination : ");
+
 	}
+	writeHeader(descout);
 
 
-	
-	int descdot = open("qwe.dot", O_WRONLY);
+
+	while (read (descin, &readLetter, 1*sizeof(char)) == 1) {
+		step++;
+		if (contain(alreadyRead, readLetter, nbChar) < 0) {
+			// On a jamais vu le caractere depuis le debut
+			if(step == 1) {
+				char prev = '\0';
+				write(descout, &prev, 1*sizeof(char));
+				write(descout, &readLetter, 1*sizeof(char));
+			} else {
+				writeStringOfBit(descout,reverseString(getCodeFrom0ToRoot(arbre)));
+				writeACharWithPredec(descout, readLetter, 0);
+			}
+			arbre = addCharInTree(arbre, readLetter, &nbNod);
+			alreadyRead = addCharInAlreadyRead(alreadyRead, readLetter, &nbChar);
+		} else {
+			// On a deja vu le caractere avant
+			int indexOfReadLetter = searchChar(arbre, readLetter, nbNod);
+			writeStringOfBit(descout,reverseString(getCodeFromiToRoot(arbre, indexOfReadLetter)));
+			incrementChar(arbre, nbNod, indexOfReadLetter);
+		}
+	}
+	writeACharWithPredec(descout, '\0', 1);
+
+
+
+
+
+
+	FILE * lol = fopen("qwe.dot","w");
+	fclose(lol);
+
+
+	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
 		exit(-1);
@@ -338,10 +508,13 @@ int main (int taille, char *args[]) {
 	char * s = calloc (1024,sizeof(char));
 	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
 	system(s);
+
+
+	//remove("qwe.dot");
 	free(s);
-	FILE * lol = fopen("qwe.dot","w'");
-	fclose(lol);
 	
+
+	close(descout);
 	free(arbre);
 	close(descin);
 	return 0;
