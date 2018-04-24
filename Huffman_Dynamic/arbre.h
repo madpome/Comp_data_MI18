@@ -33,6 +33,6 @@ void reequilibre (noeud* arbre, int index, int len, int cas);
 void incrementChar(noeud* arbre, int len, int indexDeC);
 void deplacement (noeud* arbre, int nbNod, int k);
 int searchChar(noeud* arbre, char c, int len);
-noeud* addCharInTree (noeud** arbre, char c, int* nbNod);
+noeud* addCharInTree (noeud **arbre, char c, int *nbNod);
 int contain (char *alreadyRead, char c, int nbChar);
 char* addCharInAlreadyRead(char ** alreadyRead, char c, int* nbChar);
