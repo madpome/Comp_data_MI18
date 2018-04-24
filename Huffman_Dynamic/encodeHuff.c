@@ -107,24 +107,7 @@ char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 		}
 		oldid = id;
 	}
-	if (inteRes == 0) {
-
-		int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
-		if (descdot < 0) {
-			perror("qwe.dot doesn't exit ");
-			exit(-1);
-		}
-		createDotFile(descdot, arbre, len);
-		close(descdot);
-
-
-
-		char * s = calloc (1024,sizeof(char));
-		sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
-		system(s);
-	}
-
-	res = realloc (res, inteRes*sizeof(char));
+	res = realloc (res, (inteRes+1)*sizeof(char));
 	return res;
 }
 
@@ -233,7 +216,7 @@ int main (int taille, char *args[]) {
 	FILE * lol = fopen("qwe.dot","w");
 	fclose(lol);
 
-	/*
+	
 	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
@@ -247,9 +230,9 @@ int main (int taille, char *args[]) {
 	char * s = calloc (1024,sizeof(char));
 	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
 	system(s);
-	*/
+	
 
-	//remove("qwe.dot");
+	remove("qwe.dot");
 	//free(s);
 	
 
