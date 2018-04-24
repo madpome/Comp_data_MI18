@@ -11,6 +11,6 @@ void writeAChar (int descout, char c);
 void writeHeader (int descout);
 void writeACharWithPredec (int descout, char c, int fin);
 int getLen (noeud* arbre);
-char* getCodeFromiToRoot (noeud* arbre, int i);
-char* getCodeFrom0ToRoot (noeud* arbre);
+char* getCodeFromiToRoot (noeud* arbre, int i, int len);
+char* getCodeFrom0ToRoot (noeud* arbre, int len);
 char* reverseString (char* str);

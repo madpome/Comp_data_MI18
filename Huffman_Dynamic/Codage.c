@@ -45,7 +45,7 @@ void writeStringOfBit (int descout, char * chain) {
 }
 
 void writeAChar (int descout, char c) {
-	for (int i = 0; i<7; i++) {
+	for (int i = 7; i>=0; i--) {
 		buff = buff << 1;
 
 		char iemebit = (((c<<(7-i))>>7)&1); // On passe de 00001000 -> 00000001
@@ -83,7 +83,7 @@ int getLen (noeud* arbre) {
 	return i;
 }
 
-char* getCodeFromiToRoot (noeud* arbre, int i) {
+char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 	// l represente le nomble re de bloc allouee pour 
 	int l = 10;
 	char *res = calloc (l,sizeof(char));
@@ -91,7 +91,6 @@ char* getCodeFromiToRoot (noeud* arbre, int i) {
 	noeud n1 = arbre[i];
 	int id = i;
 	int oldid = i;
-	//afficheNod(n1);
 	// Tant qu'on atteint pas la racine
 	while (n1.dp != 0) {
 		id = id + arbre[id].dp;
@@ -108,13 +107,29 @@ char* getCodeFromiToRoot (noeud* arbre, int i) {
 		}
 		oldid = id;
 	}
-	//printf("getCodeFromiToRoot |%s|   ---- inteRes = %d\n\n", res, inteRes);
+	if (inteRes == 0) {
+
+		int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
+		if (descdot < 0) {
+			perror("qwe.dot doesn't exit ");
+			exit(-1);
+		}
+		createDotFile(descdot, arbre, len);
+		close(descdot);
+
+
+
+		char * s = calloc (1024,sizeof(char));
+		sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
+		system(s);
+	}
+
 	res = realloc (res, inteRes*sizeof(char));
 	return res;
 }
 
-char* getCodeFrom0ToRoot (noeud* arbre) {
-	return getCodeFromiToRoot(arbre, 0); 
+char* getCodeFrom0ToRoot (noeud* arbre, int len) {
+	return getCodeFromiToRoot(arbre, 0, len); 
 
 }
 
@@ -174,6 +189,8 @@ int main (int taille, char *args[]) {
 
 	while (read (descin, &readLetter, 1*sizeof(char)) == 1) {
 		step++;
+		
+
 		if (contain(alreadyRead, readLetter, nbChar) < 0) {
 			// On a jamais vu le caractere depuis le debut
 			if(step == 1) {
@@ -182,28 +199,32 @@ int main (int taille, char *args[]) {
 				write(descout, &readLetter, 1*sizeof(char));
 				//printf("%c", readLetter);
 			} else {
-				char* code = reverseString(getCodeFrom0ToRoot(arbre));
+				char* code = reverseString(getCodeFrom0ToRoot(arbre, nbNod));
 				//printf("%s%c", code, readLetter);
 				writeStringOfBit(descout,code);
 				writeACharWithPredec(descout, readLetter, 0);
 			}
-			arbre = addCharInTree(arbre, readLetter, &nbNod);
-			alreadyRead = addCharInAlreadyRead(alreadyRead, readLetter, &nbChar);
+			arbre = addCharInTree(&arbre, readLetter, &nbNod);
+			reequilibre(arbre, 2, nbNod, 0);
+			alreadyRead = addCharInAlreadyRead(&alreadyRead, readLetter, &nbChar);
 		} else {
 			// On a deja vu le caractere avant
 			int indexOfReadLetter = searchChar(arbre, readLetter, nbNod);
-			char * code = reverseString(getCodeFromiToRoot(arbre, indexOfReadLetter));
+			char * code = reverseString(getCodeFromiToRoot(arbre, indexOfReadLetter, nbNod));
 			//printf("%s", code);
 			writeStringOfBit(descout,code);
-			incrementChar(arbre, nbNod, indexOfReadLetter);
+			reequilibre(arbre, indexOfReadLetter, nbNod, 0);
 		}
+
+
+
 	}
 
 
 	//printf("\n");
 	// On ecrit le caractere de fin
 	writeACharWithPredec(descout, '\0', 1);
-
+	writeAChar(descout, '\0');
 
 
 
@@ -212,7 +233,7 @@ int main (int taille, char *args[]) {
 	FILE * lol = fopen("qwe.dot","w");
 	fclose(lol);
 
-
+	/*
 	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
@@ -226,14 +247,14 @@ int main (int taille, char *args[]) {
 	char * s = calloc (1024,sizeof(char));
 	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
 	system(s);
-
+	*/
 
 	//remove("qwe.dot");
-	free(s);
+	//free(s);
 	
 
 	close(descout);
-	free(arbre);
+	//free(arbre);
 	close(descin);
 	return 0;
 }

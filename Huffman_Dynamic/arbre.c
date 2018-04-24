@@ -10,7 +10,14 @@
 
 
 void afficheNod (noeud nod) {
-	printf("lettre = %c, dfg = %d, dfd = %d, dp = %d, poids = %d\n",nod.lettre, nod.dfg, nod.dfd, nod.dp, nod.poids);
+	printf("lettre = %d, dfg = %d, dfd = %d, dp = %d, poids = %d, pointeur = %p\n",(int)nod.lettre, nod.dfg, nod.dfd, nod.dp, nod.poids, &nod);
+}
+
+void afficheArbre (noeud* n, int len) {
+	for (int i = 0; i<len; i++) {
+		printf("%d : ", i+1);
+		afficheNod(n[i]);
+	}
 }
 
 noeud* setArbre () {
@@ -76,10 +83,10 @@ void createDotNod (int desc, noeud* arbre, int index) {
 		sprintf(ligneFils, "\"%d,%s,%d,%d\" [label = \"1\"];\n", id, characf, arbre[id].poids, id+arbre[id].dp);
 		write(desc, ligneFils, strlen(ligneFils)*sizeof(char));	
 
-		free(characn);
-		free(characf);
-		free(ligne);
-		free(ligneFils);
+		//free(characn);
+		//free(characf);
+		//free(ligne);
+		//free(ligneFils);
 
 		createDotNod (desc, arbre, ig);
 		createDotNod (desc, arbre, id);
@@ -96,7 +103,7 @@ void createDotFile (int desc, noeud* arbre, int len) {
 
 	sprintf(ligne, "}\n");
 	write (desc, ligne, strlen(ligne));
-	free(ligne);
+	//free(ligne);
 }
 
 void swap (int index1, int index2, noeud* arbre) {
@@ -177,12 +184,8 @@ int plusCroissant (noeud* arbre, int len) {
 
 int rechercheEquilibre (noeud* arbre, int index, int len) {
 	// On cherche le plus grand index de poids inferieur a celui de arbre[index]
-	if (plusCroissant(arbre, len) < 0) {
-		return -1;
-	}
 	for (int i = len-1; i>index; i--) {
-		//printf("index = %d, arbre[%d].poids = %d, arbre[%d].poids = %d\n",index,i,arbre[i].poids,index,arbre[index].poids);
-		if (arbre[i].poids < arbre[index].poids) {
+		if (arbre[i].poids == arbre[index].poids) {
 			return i;
 		}
 	}
@@ -191,27 +194,20 @@ int rechercheEquilibre (noeud* arbre, int index, int len) {
 
 
 void reequilibre (noeud* arbre, int index, int len, int cas) {
-
-	int indexPerePetit = rechercheEquilibre(arbre, index, len);
-	if (indexPerePetit > 0) {
-		swap(index, indexPerePetit, arbre);
-		int tmp = index;
-		index = indexPerePetit;	
-		indexPerePetit = tmp;
-	}
-
-
-	int indexPere = index+arbre[index].dp;
-	if (indexPere != index) {
-		// On est pas dans la racine
-		if (cas == 1) {
-			arbre[indexPere].poids++;
-			reequilibre(arbre, indexPere,len, cas);
-		} else {
-			reequilibre(arbre, indexPere,len, cas);
-			arbre[indexPere].poids++;
+	while (arbre[index].dp != 0) {
+		int indexPereSame = rechercheEquilibre(arbre, index, len);
+		if (indexPereSame > 0) {
+			swap(indexPereSame, index, arbre);
+			int tmp = index;
+			index = indexPereSame;
+			indexPereSame = tmp;
 		}
+		arbre[index].poids++;
+		index = arbre[index].dp + index;
+
 	}
+	arbre[index].poids++;
+
 }
 
 
@@ -232,37 +228,42 @@ void deplacement (noeud* arbre, int nbNod, int k) {
 
 }
 
-noeud* addCharInTree (noeud* arbre, char c, int *nbNod) {
+noeud* addCharInTree (noeud** arbre, char c, int *nbNod) {
 
-
-	arbre = realloc (arbre, sizeof(noeud)*((*nbNod)+2));	
-	deplacement(arbre, *nbNod, 2);
+	*arbre = realloc (*arbre, ((*nbNod)+2) * sizeof(noeud));
+	/*
+	if (tempArbre == NULL) {
+		printf("On a un realloc NULL");
+	}
+	*arbre = &tempArbre;
+	*/
+	deplacement(*arbre, *nbNod, 2);
 	(*nbNod)+=2;
 
 
-	//Initialisation de arbre[0]
-	arbre[0].lettre = -1;
-	arbre[0].dfg = 0;
-	arbre[0].dfd = 0;
-	arbre[0].dp = 2;
-	arbre[0].poids = 0;
+	//Initialisation de (*arbre)[0]
+	(*arbre)[0].lettre = -1;
+	(*arbre)[0].dfg = 0;
+	(*arbre)[0].dfd = 0;
+	(*arbre)[0].dp = 2;
+	(*arbre)[0].poids = 0;
 
-	//Initialisation de arbre[1] (C'est la qu'on va foutre le caractere)
-	arbre[1].lettre = c;
-	arbre[1].dfg = 0;
-	arbre[1].dfd = 0;
-	arbre[1].dp = 1;
-	arbre[1].poids = 1;
-
-
-	//On modifie les valeurs de fils de arbre[2] (l'ancien arbre[0])
-	arbre[2].dfg = -2;
-	arbre[2].dfd = -1;
-	arbre[2].poids++;
+	//Initialisation de (*arbre)[1] (C'est la qu'on va foutre le caractere)
+	(*arbre)[1].lettre = c;
+	(*arbre)[1].dfg = 0;
+	(*arbre)[1].dfd = 0;
+	(*arbre)[1].dp = 1;
+	(*arbre)[1].poids = 1;
 
 
-	reequilibre(arbre, 2, *nbNod, 1);
-	return arbre;
+	//On modifie les valeurs de fils de (*arbre)[2] (l'ancien (*arbre)[0])
+	(*arbre)[2].dfg = -2;
+	(*arbre)[2].dfd = -1;
+	//(*arbre)[2].poids++;
+	//afficheArbre(*arbre, *nbNod);
+
+
+	return *arbre;
 
 }
 
@@ -270,7 +271,8 @@ int searchChar(noeud* arbre, char c, int len) {
 	// On fait un simple parcours de tableau, on pourrait parcourir en tant qu'arbre,
 	// Mais on pourrait rechercher dans tout l'arbre a la fin.
 	for (int i = len-1; i >= 0; i--) {
-		if (arbre[i].lettre == c) {
+		if (arbre[i].lettre == c && arbre[i].dfg == 0) {
+			//On verifie que les caracteres sont identiques, et qu'on est bien dans une feuille
 			return i;
 		}
 	}
@@ -288,11 +290,11 @@ int contain (char *alreadyRead, char c, int len) {
 
 }
 
-char* addCharInAlreadyRead(char * alreadyRead, char c, int* len) {
+char* addCharInAlreadyRead(char ** alreadyRead, char c, int* len) {
 	if (*len != 0) {
-		alreadyRead = realloc (alreadyRead, sizeof(char)*((*len)+1));
+		*alreadyRead = realloc (*alreadyRead, sizeof(char)*((*len)+1));
 	}
-	alreadyRead[*len] = c;
+	(*alreadyRead)[*len] = c;
 	(*len)++;
-	return alreadyRead;
+	return *alreadyRead;
 }
