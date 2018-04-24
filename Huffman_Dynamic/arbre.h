@@ -21,22 +21,17 @@ typedef struct noeud {
 
 } noeud;
 
+void afficheNod (noeud nod);
 noeud* setArbre ();
-void incrementePoidsPereCascade (noeud* arbre, int index, int len);
+void createDotNod (int desc, noeud* arbre, int index);
+void createDotFile (int desc, noeud* arbre, int len);
+void swap (int index1, int index2, noeud* arbre);
+int plusCroissant (noeud* arbre, int len);
+int rechercheEquilibre (noeud* arbre, int index, int len);
+void reequilibre (noeud* arbre, int index, int len, int cas);
+void incrementChar(noeud* arbre, int len, int indexDeC);
+void deplacement (noeud* arbre, int nbNod, int k);
+int searchChar(noeud* arbre, char c, int len);
 noeud* addCharInTree (noeud* arbre, char c, int* nbNod);
 int contain (char *alreadyRead, char c, int nbChar);
 char* addCharInAlreadyRead(char * alreadyRead, char c, int* nbChar);
-void incrementChar(noeud* arbre, int len, int indexDeC);
-int searchChar(noeud* arbre, char c, int len);
-void reequilibre (noeud* arbre, int index, int len, int cas);
-void swap (int index1, int index2, noeud* arbre);
-void createDotNod (int desc, noeud* arbre, int index);
-void createDotFile (int desc, noeud* arbre, int len);
-void deplacement (noeud* arbre, int nbNod, int k);
-void afficheNod (noeud nod);
-char* getCodeFrom0ToRoot (noeud* arbre);
-void writeHeader (int descout);
-void writeStringOfBit (int descout, char * chain);
-void writeAChar (int descout, char c);
-void writeACharWithPredec (int descout, char c, int fin);
-char* reverseString (char* str);
