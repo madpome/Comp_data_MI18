@@ -1,20 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include "arbre.h"
+#include "encodeHuff.h"
 
 /*
 	On va definir plusieurs variables globales, qui serviront a ecrire en stream,
-	durant la construction de l'arbre 
+	durant la construction de l'arbre
 
 	buff :		c'est le tampon dans lequel on va ecrire
-	nbrDeBit :	nombre de bit qu'on a ecrit dans buff, on a 0 <= nbrDeBit <= 8. 
+	nbrDeBit :	nombre de bit qu'on a ecrit dans buff, on a 0 <= nbrDeBit <= 8.
 				Quand on a nbrDeBit == 8, on ecrit
-	
+
 */
 unsigned char buff = '\0';
 int nbrDeBit = 0;
@@ -84,7 +78,7 @@ int getLen (noeud* arbre) {
 }
 
 char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
-	// l represente le nomble re de bloc allouee pour 
+	// l represente le nomble re de bloc allouee pour
 	int l = 10;
 	char *res = calloc (l,sizeof(char));
 	int inteRes = 0;
@@ -129,7 +123,7 @@ char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 }
 
 char* getCodeFrom0ToRoot (noeud* arbre, int len) {
-	return getCodeFromiToRoot(arbre, 0, len); 
+	return getCodeFromiToRoot(arbre, 0, len);
 
 }
 
@@ -189,7 +183,7 @@ int main (int taille, char *args[]) {
 
 	while (read (descin, &readLetter, 1*sizeof(char)) == 1) {
 		step++;
-		
+
 
 		if (contain(alreadyRead, readLetter, nbChar) < 0) {
 			// On a jamais vu le caractere depuis le debut
@@ -251,7 +245,7 @@ int main (int taille, char *args[]) {
 
 	//remove("qwe.dot");
 	//free(s);
-	
+
 
 	close(descout);
 	//free(arbre);
