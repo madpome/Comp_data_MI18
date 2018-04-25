@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-SOURCES = encodeHuff.c decodeHuff.c
+SOURCES = encodeHuff.c decodeHuff.c arbre.c
 FILE = $(SOURCES) Makefile specHSMI
 OBJS = $(SOURCES:%.c=%.o)
 empty =
@@ -15,17 +15,17 @@ all : encodeHuff decodeHuff
 
 %.o : %.c
 	@echo "building $(@:%=%) ..."
-	@$(CC) $(OPTS) -c $?
+	@$(CC) $(OPTS) -c $^
 
-encodeHuff : arbre.o encodeHuff.o
+encodeHuff : encodeHuff.o arbre.o
 
-decodeHuff : arbre.o decodeHuff.o
+decodeHuff : decodeHuff.o arbre.o
 
-encodeHuff.o : encodeHuff.c arbre.h
+encodeHuff.o : encodeHuff.c arbre.c arbre.h
 
-decodeHuff.o : decodeHuff.c arbre.h
+decodeHuff.o : decodeHuff.c arbre.c arbre.h
 
-arbre.o : arbre.c
+
 #cleantest :
 #	rm -f !("huffman.c"|"huffmanDecod.c"|"Makefile"|"specHSMI"|*.txt)
 #cleanAll :

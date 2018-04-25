@@ -8,6 +8,7 @@ int read_header(int desc){
     s[4]='\0';
     return (strcmp(s,"HDMI")!=0)?-1:1;
 }
+int truc =0;
 /*
 int readLetter(int descR, int descW, noeud **arbre, int * nbNode, int decalage,char * cs){
     char c = *cs;
@@ -44,7 +45,6 @@ int readLetter(int descR, int descW, noeud **arbre, int * nbNode, int decalage,c
         }
     }
     printf("3EME LECTURE %c\n",*cs);
-    *arbre = addCharInTree(arbre, *cs, nbNode);
     //Et on l'écrit bien sur
     printf("LETTER WROTE : |%c|\n",*cs);
     if(write(descW, cs, 1) < 0){
@@ -59,7 +59,7 @@ int readLetter(int descR, int descW, noeud **arbre, int * nbNode, int decalage,c
 int readLetter(int descR, int descW, noeud **arbre, int *nbNode, int decalage, char *lu){
     int nbZero = 0;
     for(int i = decalage+1; i<8; i++){
-        if((*lu & bitTab[i])==bitTab[i]){
+        if((*lu & bitTab[7-i])==bitTab[7-i]){
             return -1;
         }
         nbZero ++;
@@ -67,7 +67,7 @@ int readLetter(int descR, int descW, noeud **arbre, int *nbNode, int decalage, c
     read(descR,lu,1);
     int idx = 0;
     if(nbZero!=8){
-        for(int i = 0 ;i<8-nbZero; i++){
+        for(int i = 7 ;i>=nbZero; i--){
             if((*lu & bitTab[i])==bitTab[i]){
                 return -1;
             }
@@ -75,25 +75,43 @@ int readLetter(int descR, int descW, noeud **arbre, int *nbNode, int decalage, c
         }
     }
     //A partir de la on lit pour la lettre
+    printf("IDX = %d LU \n",idx);
+    puts("lecture en cours");
+    for(int i = 7;i>=0;i--){
+        printf("%d",((*lu & bitTab[i])!=0)?1:0);
+    }
+    puts("");
     char c = 0;
-    for(int i = idx; i<8;i++){
-        c |= (*lu & bitTab[i-idx]);
+    for(int i = 7-idx; i>=0;i--){
+        if((*lu & bitTab[i])!=0){
+            c|=(bitTab[i+idx]);
+        }
     }
     if(idx != 0){
         read(descR, lu, 1);
-        for(int i = 0;i<8-idx;i++){
-            c|=(*lu & bitTab[8-idx+i]);
+        for(int i = 7;i>=8-idx;i--){
+            if((*lu & bitTab[i])!=0){
+                c|=(bitTab[7-i]);
+            }
         }
     }
+    for(int i = 7;i>=0;i--){
+        printf("%d",((c & bitTab[i])!=0)?1:0);
+    }
     printf("LETTRE WROTE : %c\n",c);
-    if(write(descW, lu, 1) <0){
+    *arbre = addCharInTree(arbre, c, nbNode);
+    if(write(descW, &c, 1) <0){
         perror("");
         exit(-1);
     }
-    return 8-idx;
+    return idx;
 }
 
-
+int new_file(){
+    char *s = calloc(100,1);
+        sprintf(s,"tree%d.png",truc++);
+    return open(s,O_CREAT|O_RDWR,0777);
+}
 int main(int argc, char **argv){
     if(argc != 3){
         fprintf(stderr,"2 arguments : entrée et sortie\n");
@@ -138,44 +156,47 @@ int main(int argc, char **argv){
     int pos = *nbNode-1;
     noeud cur = arbre[pos];
     printf("SEEK_CURHORS = %ld\n",lseek(descRead,0,SEEK_CUR));
+    createDotFile (new_file(), arbre,*nbNode);
     while(1){
         read(descRead, &c, 1);
         for(idx = 0;idx<8 ;idx++){
             //Si le bit a la pos idx est en 1
             //Peut etre tester des cas ou y'a des erreurs ?
-            if((*c & bitTab[idx])== bitTab[idx]){
+            if((*c & bitTab[7-idx])== bitTab[7-idx]){
                 pos += cur.dfd;
             }else{
                 pos += cur.dfg;
             }
             cur = arbre[pos];
             //On est a une lettre
-            printf("pos = %d\n",pos);
+            printf("pos = %d,idx = %d\n",pos,idx);
             if(cur.dfg == 0 && cur.dfd==0){
                 if(pos == 0){
                     //Il faut lire une lettre
                     printf("SEEK_CURHORS = %ld\n",lseek(descRead,0,SEEK_CUR));
                     idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c);
-                    printf("SEEK_CURHORS APRES = %ld\n",lseek(descRead,0,SEEK_CUR));
+                    printf("SEEK_CURHORS APRES = %ld et IDX =%d\n",lseek(descRead,0,SEEK_CUR),idx);
                     if(idx == -1){
                         puts("ici");
                         close(descRead);
                         close(descWrite);
                         return 0;
                     }else if(idx < 0){
-                        puts("ici2");
+                        puts("1");
                         return -1;
                     }
                 }else{
                     printf("incremente ici %d\n",idx);
                     incrementChar(arbre, *nbNode, searchChar(arbre, *c, *nbNode));
                     write(descWrite, &cur.lettre, 1);
-                    pos = *nbNode-1;
                     cur=arbre[pos];
                 }
+                pos = *nbNode-1;
+                createDotFile (new_file(), arbre,*nbNode);
+
             }
         }
-        printf("poids arbre[2] %d\n",arbre[2].poids);
+        printf("poids arbre[2]oula %d\n",arbre[2].poids);
 
     }
 }
