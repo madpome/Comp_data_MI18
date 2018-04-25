@@ -11,19 +11,21 @@ OPTS = -g -Wall
 all : encodeHuff decodeHuff
 % : %.o
 	@echo "linking $(@:%.o=%) ..."
-	@$(CC) $(OPTS) -o $@ $<
+	@$(CC) $(OPTS) $? -o $@
 
 %.o : %.c
 	@echo "building $(@:%=%) ..."
-	@$(CC) $(OPTS) -c $<
+	@$(CC) $(OPTS) -c $?
 
-encodeHuff : encodeHuff.o
+encodeHuff : arbre.o encodeHuff.o
 
-decodeHuff : decodeHuff.o
+decodeHuff : arbre.o decodeHuff.o
 
-encodeHuff.o : encodeHuff.c
+encodeHuff.o : encodeHuff.c arbre.h
 
-decodeHuff.o : decodeHuff.c
+decodeHuff.o : decodeHuff.c arbre.h
+
+arbre.o : arbre.c
 #cleantest :
 #	rm -f !("huffman.c"|"huffmanDecod.c"|"Makefile"|"specHSMI"|*.txt)
 #cleanAll :
