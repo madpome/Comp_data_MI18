@@ -107,7 +107,6 @@ void createDotFile (int desc, noeud* arbre, int len) {
 }
 
 void swap (int index1, int index2, noeud* arbre) {
-
 	noeud* noeud1 = &(arbre[index1]);
 	noeud* noeud2 = &(arbre[index2]);
 	noeud tmp = {noeud1->lettre, noeud1->dfg, noeud1->dfd,noeud1->dp,noeud1->poids};
@@ -185,7 +184,7 @@ int plusCroissant (noeud* arbre, int len) {
 int rechercheEquilibre (noeud* arbre, int index, int len) {
 	// On cherche le plus grand index de poids inferieur a celui de arbre[index]
 	for (int i = len-1; i>index; i--) {
-		if (arbre[i].poids == arbre[index].poids) {
+		if (arbre[i].poids == arbre[index].poids && i != arbre[index].dp + index) {
 			return i;
 		}
 	}

@@ -89,6 +89,26 @@ char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 	char *res = calloc (l,sizeof(char));
 	int inteRes = 0;
 	noeud n1 = arbre[i];
+
+	if (n1.dp == 0) {
+		printf("\n****************** Probleme getCodeFromiToRoot l 95 ******************\n");
+		afficheArbre(arbre, len);
+		printf("****************** Probleme getCodeFromiToRoot l 95 ******************\n\n");
+		int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
+		if (descdot < 0) {
+			perror("qwe.dot doesn't exit ");
+			exit(-1);
+		}
+		createDotFile(descdot, arbre, len);
+		close(descdot);
+
+		char * s = calloc (1024,sizeof(char));
+		sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
+		system(s);
+		exit(-1);
+	}
+
+
 	int id = i;
 	int oldid = i;
 	// Tant qu'on atteint pas la racine
@@ -107,7 +127,7 @@ char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 		}
 		oldid = id;
 	}
-	res = realloc (res, (inteRes+1)*sizeof(char));
+	res = realloc (res, (inteRes)*sizeof(char));
 	return res;
 }
 
@@ -172,7 +192,7 @@ int main (int taille, char *args[]) {
 
 	while (read (descin, &readLetter, 1*sizeof(char)) == 1) {
 		step++;
-		
+
 
 		if (contain(alreadyRead, readLetter, nbChar) < 0) {
 			// On a jamais vu le caractere depuis le debut
@@ -217,19 +237,7 @@ int main (int taille, char *args[]) {
 	fclose(lol);
 
 	
-	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
-	if (descdot < 0) {
-		perror("qwe.dot doesn't exit ");
-		exit(-1);
-	}
-	createDotFile(descdot, arbre, nbNod);
-	close(descdot);
 
-
-
-	char * s = calloc (1024,sizeof(char));
-	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
-	system(s);
 	
 
 	remove("qwe.dot");
