@@ -259,7 +259,7 @@ noeud* addCharInTree (noeud** arbre, char c, int *nbNod) {
 	//On modifie les valeurs de fils de (*arbre)[2] (l'ancien (*arbre)[0])
 	(*arbre)[2].dfg = -2;
 	(*arbre)[2].dfd = -1;
-	//(*arbre)[2].poids++;
+	(*arbre)[2].poids++;
 	//afficheArbre(*arbre, *nbNod);
 
 

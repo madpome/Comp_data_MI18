@@ -186,7 +186,6 @@ int main(int argc, char **argv){
                         return -1;
                     }
                 }else{
-                    printf("incremente ici %d\n",idx);
                     incrementChar(arbre, *nbNode, searchChar(arbre, *c, *nbNode));
                     write(descWrite, &cur.lettre, 1);
                     cur=arbre[pos];
