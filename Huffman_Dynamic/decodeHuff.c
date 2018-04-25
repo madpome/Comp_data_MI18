@@ -30,7 +30,8 @@ int lireZero(int descR, int decalage, char *lu){
     }
     return idx;
 }
-int readLetter(int descR, int descW, noeud **arbre, int *nbNode, int decalage, char *lu){
+
+int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, char *lu){
 
     //A partir de la on lit pour la lettre
     int idx = lireZero(descR, decalage, lu);
@@ -61,14 +62,14 @@ int readLetter(int descR, int descW, noeud **arbre, int *nbNode, int decalage, c
         printf("%d",((c & bitTab[i])!=0)?1:0);
     }
     printf("LETTRE WROTE : %c\n",c);
-    printf("OLD ADDR : %p\n",arbre);
-    *arbre = addCharInTree(arbre, c, nbNode);
+    printf("OLD ADDR : %p\n",*arbre);
+    **arbre = addCharInTree(*arbre, c, nbNode);
     printf("NEW ADDR : %p\n",arbre);
     if(write(descW, &c, 1) <0){
         perror("");
         exit(-1);
     }
-    reequilibre (*arbre, 2, *nbNode, 0);
+    reequilibre (**arbre, 2, *nbNode, 0);
 
     return idx;
 }
@@ -102,12 +103,17 @@ int main(int argc, char **argv){
         return -1;
     }
 
+
+
+
     noeud **arbre = calloc(sizeof(*arbre),1);
     *arbre = setArbre();
-    int * nbNode = malloc(sizeof(int));
+    int * nbNode = calloc(1,sizeof(int));
     *nbNode = 1;
 
-    char *c= calloc(1,1);
+
+
+    char *c= calloc(1, sizeof(char));
     read(descRead,c,1);
     int r =readLetter(descRead, descWrite, arbre, nbNode,-1, c);
     printf("poids arbre[2] %d\n",(*arbre)[2].poids);
@@ -141,7 +147,7 @@ int main(int argc, char **argv){
             if(cur.dfg == 0 && cur.dfd==0){
                 if(pos == 0){
                     //Il faut lire une lettre
-                    idx = readLetter(descRead, descWrite, arbre, nbNode, idx,c)-1;
+                    idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c)-1;
                     printf("IDX = %d\n",idx);
                     if(idx == -2){
                         puts("ici");
