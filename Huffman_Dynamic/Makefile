@@ -21,9 +21,11 @@ encodeHuff : encodeHuff.o arbre.o
 
 decodeHuff : decodeHuff.o arbre.o
 
-encodeHuff.o : encodeHuff.c arbre.c arbre.h
+arbre.o : arbre.c
 
-decodeHuff.o : decodeHuff.c arbre.c arbre.h
+encodeHuff.o : encodeHuff.c arbre.h
+
+decodeHuff.o : decodeHuff.c arbre.h
 
 
 #cleantest :
