@@ -38,32 +38,23 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
         return -1;
     }
     //A partir de la on lit pour la lettre
-    printf("IDX = %d LU \n",idx);
-    puts("lecture en cours");
-    for(int i = 7;i>=0;i--){
-        printf("%d",((*lu & bitTab[i])!=0)?1:0);
-    }
-    puts("");
-
+    int bitLu = 0;
     char c = 0;
     for(int i = 7-idx; i>=0;i--){
+        bitLu++;
         if((*lu & bitTab[i])!=0){
             c|=(bitTab[i+idx]);
         }
     }
     if(idx != 0){
         read(descR, lu, 1);
-        for(int i = 7;i>=8-idx;i--){
+        for(int i = 7;i>=bitLu;i--){
             if((*lu & bitTab[i])!=0){
-                c|=(bitTab[7-i]);
+                c|=(bitTab[i-bitLu]);
             }
         }
     }
 
-    for(int i = 7;i>=0;i--){
-        printf("%d",((c & bitTab[i])!=0)?1:0);
-    }
-    printf("LETTRE WROTE : %c\n",c);
     **arbre = addCharInTree(*arbre, c, nbNode);
     if(write(descW, &c, 1) <0){
         perror("");
@@ -76,7 +67,7 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
 int new_file(){
     char *s = calloc(100,1);
         sprintf(s,"tree%d.png",truc++);
-    return open(s,O_CREAT|O_RDWR,0777);
+    return open(s,O_CREAT | O_RDWR | O_TRUNC,0777);
 }
 int main(int argc, char **argv){
     if(argc != 3){
@@ -85,7 +76,7 @@ int main(int argc, char **argv){
     }
     int descRead = open(argv[1], O_RDONLY);
 
-    int descWrite = open(argv[2], O_CREAT|O_RDWR, 0777);
+    int descWrite = open(argv[2], O_CREAT|O_RDWR|O_TRUNC, 0777);
     if(descRead <0){
         fprintf(stderr, "Impossible d'ouvrir en lecture %s\n",argv[1]);
     }
@@ -101,9 +92,6 @@ int main(int argc, char **argv){
         fprintf(stderr,"Header incorrect\n");
         return -1;
     }
-
-
-
 
     noeud **arbre = calloc(sizeof(*arbre),1);
     *arbre = setArbre();
@@ -125,32 +113,22 @@ int main(int argc, char **argv){
     int idx =0;
     int pos = *nbNode-1;
     noeud cur = (*arbre)[pos];
-    createDotFile (new_file(), *arbre,*nbNode);
     while(1){
         read(descRead, c, 1);
-
-        for(int i = 7;i>=0;i--){
-            printf("%d",((*c & bitTab[i])!=0)?1:0);
-        }
-        puts("");
         for(idx = 0;idx<8 ;idx++){
             //Si le bit a la pos idx est en 1
             //Peut etre tester des cas ou y'a des erreurs ?
             if((*c & bitTab[7-idx])== bitTab[7-idx]){
                 pos += cur.dfd;
-                printf("lettre = %c CUR.DFD = %d, pos = %d, idx= %d\n",cur.lettre,cur.dfd,pos,idx);
             }else{
                 pos += cur.dfg;
-                printf("lettre = %c CUR.DFG = %d, pos = %d, idx= %d\n",cur.lettre,cur.dfg,pos,idx);
             }
             cur = (*arbre)[pos];
             //On est a une lettre
-            printf("pos = %d,idx = %d\n",pos,idx);
             if(cur.dfg == 0 && cur.dfd==0){
                 if(pos == 0){
                     //Il faut lire une lettre
                     idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c)-1;
-                    printf("IDX = %d\n",idx);
                     if(idx == -2){
                         close(descRead);
                         close(descWrite);
@@ -164,7 +142,6 @@ int main(int argc, char **argv){
                 }
                 pos = *nbNode-1;
                 cur=(*arbre)[pos];
-                createDotFile (new_file(), *arbre,*nbNode);
             }
         }
     }
