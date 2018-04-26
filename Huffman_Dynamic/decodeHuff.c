@@ -70,9 +70,6 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
         exit(-1);
     }
     reequilibre (**arbre, 2, *nbNode, 0);
-    for(int i = 7;i>=0;i--){
-        printf("%d",((*lu & bitTab[i])!=0)?1:0);
-    }
     return idx;
 }
 
@@ -130,13 +127,12 @@ int main(int argc, char **argv){
     noeud cur = (*arbre)[pos];
     createDotFile (new_file(), *arbre,*nbNode);
     while(1){
-        if(read(descRead, c, 1)<=0){
-            perror("");
-            return -1;
-        }
+        read(descRead, c, 1);
+
         for(int i = 7;i>=0;i--){
             printf("%d",((*c & bitTab[i])!=0)?1:0);
         }
+        puts("");
         for(idx = 0;idx<8 ;idx++){
             //Si le bit a la pos idx est en 1
             //Peut etre tester des cas ou y'a des erreurs ?
@@ -156,21 +152,18 @@ int main(int argc, char **argv){
                     idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c)-1;
                     printf("IDX = %d\n",idx);
                     if(idx == -2){
-                        puts("ici");
                         close(descRead);
                         close(descWrite);
                         return 0;
                     }else if(idx < -1){
-                        puts("1");
                         return -1;
                     }
                 }else{
-                    reequilibre(*arbre, searchChar(*arbre, *c, *nbNode),*nbNode,0);
+                    reequilibre(*arbre,searchChar(*arbre, cur.lettre, *nbNode),*nbNode,0);
                     write(descWrite, &cur.lettre, 1);
                 }
                 pos = *nbNode-1;
                 cur=(*arbre)[pos];
-                printf("MA POS =%d\n",pos);
                 createDotFile (new_file(), *arbre,*nbNode);
             }
         }
