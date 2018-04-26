@@ -219,6 +219,9 @@ int main (int taille, char *args[]) {
 
 
 	//printf("\n");
+
+	// On ecrit le chemin vers 0
+	writeStringOfBit(descout, reverseString(getCodeFrom0ToRoot(arbre, nbNod)));
 	// On ecrit le caractere de fin
 	writeACharWithPredec(descout, '\0', 1);
 	writeAChar(descout, '\0');
