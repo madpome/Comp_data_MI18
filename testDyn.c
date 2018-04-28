@@ -8,7 +8,8 @@
 
 int main () {
   int len = 11;
-
+  //TODO parcour les dossiers pour obtenir les fichiers à compresser etc.
+  //Quitte à supprimer les fichiers de compressions et décompressé a la fin pour eviter de les prendre en compte
   const char *test[len];
   test[0] = "AmerikastaPalatessa.txt";
   test[1] = "Florante.txt";
@@ -32,7 +33,8 @@ int main () {
     sprintf(input, "test_file/%s", test[i]);
     printf("input = %s\n", input);
 
-
+    //TODO faire en sorte que l'algo de compression soit en variable pour pouvoir
+    //tous les enchainer, de même pour les extensions de fichiers
     char *cmpFilename = calloc(strlen(input)+10, sizeof(char));
     sprintf(cmpFilename, "%s.HDMI.cmp", input);
     printf("Fichier compresse = %s\n", cmpFilename);
@@ -89,9 +91,11 @@ int main () {
 
   float sum = 0;
   for (int i = 0; i<len; i++) {
-    sum += ratio[i];
+    sum += (1-ratio[i]);
   }
-  printf("Taux de compression moyen : %f\n\n", sum/len);
+  //TODO séparer les ratio des fichiers txts, img, et audio
+  //Donner les taux individuels et la taux moyen total
+  printf("Taux de compression moyen : %f%%\n", (sum/len)*100);
 
 
 
