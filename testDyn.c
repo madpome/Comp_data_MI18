@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h> 
-#include <sys/stat.h> 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 
@@ -24,7 +24,7 @@ int main () {
 
 
 
-  
+
   float *ratio = calloc(len, sizeof(float));
 
   for (int i = 0; i<len; i++) {
@@ -32,25 +32,25 @@ int main () {
     sprintf(input, "test_file/%s", test[i]);
     printf("input = %s\n", input);
 
-    
+
     char *cmpFilename = calloc(strlen(input)+10, sizeof(char));
     sprintf(cmpFilename, "%s.HDMI.cmp", input);
     printf("Fichier compresse = %s\n", cmpFilename);
-    
+
     char *uncmpFilename = calloc (strlen(cmpFilename)+10, sizeof(char));
     sprintf(uncmpFilename, "%s.uncmp", input);
     printf("Fichier decompresse = %s\n", uncmpFilename);
 
-    
+
     char *cmdCmp = calloc(1024, sizeof(char));
     sprintf(cmdCmp, "Huffman_Dynamic/encodeHuff %s", input);
 
     system(cmdCmp);
-    
+
     char *cmdUncmp = calloc(1024, sizeof(char));
     sprintf(cmdUncmp, "Huffman_Dynamic/decodeHuff %s %s", cmpFilename, uncmpFilename);
     system(cmdUncmp);
-    
+
 
     struct stat inputFile;
     if (stat(input, &inputFile) < 0) {
@@ -58,7 +58,7 @@ int main () {
       perror("Error : ");
       exit(-1);
     }
-    
+
     struct stat cmpFile;
     if (stat(cmpFilename, &cmpFile) < 0) {
       printf("%s : ", cmpFilename);
@@ -67,26 +67,26 @@ int main () {
     }
 
 
-    ratio[i] = ((float) inputFile.st_size)/cmpFile.st_size;
+    ratio[i] = ((float) cmpFile.st_size)/inputFile.st_size;
     printf("Ancienne taille = %ld\n", inputFile.st_size);
     printf("Nouvelle taille = %ld\n", cmpFile.st_size);
-    printf("Taux de compression : %f\n", ratio[i]);
-    
+    printf("Taux de compression : %f%%\n", ((float) 1-ratio[i])*100);
 
-    
+
+
     char *cmdDiff = calloc (strlen(input) + strlen(uncmpFilename) + 10, sizeof(char));
     sprintf(cmdDiff, "diff %s %s", input, uncmpFilename);
     printf("diff : \n");
     system(cmdDiff);
     printf("Fin diff \n");
-    
+
     free(input);
     free(cmpFilename);
     free(uncmpFilename);
     free(cmdCmp);
     free(cmdUncmp);
   }
-  
+
   float sum = 0;
   for (int i = 0; i<len; i++) {
     sum += ratio[i];
