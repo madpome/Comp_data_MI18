@@ -66,8 +66,8 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
 
 int new_file(){
     char *s = calloc(100,1);
-        sprintf(s,"tree%d.png",truc++);
-    return open(s,O_CREAT | O_RDWR | O_TRUNC,0777);
+    sprintf(s,"tree%d.png",truc++);
+    return open(s,O_CREAT | O_RDWR,0777);
 }
 int main(int argc, char **argv){
     if(argc != 3){
@@ -75,14 +75,16 @@ int main(int argc, char **argv){
         return -1;
     }
     int descRead = open(argv[1], O_RDONLY);
-
-    int descWrite = open(argv[2], O_CREAT|O_RDWR|O_TRUNC, 0777);
+    FILE * f = fopen(argv[2],"w");
+    fclose(f);
+    int descWrite = open(argv[2], O_CREAT|O_RDWR, 0777);
     if(descRead <0){
         fprintf(stderr, "Impossible d'ouvrir en lecture %s\n",argv[1]);
+        return -1;
     }
     if(descWrite < 0){
-        printf("%s\n",argv[2]);
         fprintf(stderr, "Impossible d'ouvrir en écriture %s\n",argv[2]);
+        return -1;
     }
     for(int i = 0;i<8;i++){
         bitTab[i] = 0 | (1<<i);
