@@ -27,15 +27,15 @@ int main (int taille, char *args[]) {
 	char *algo = args[1];
 
 	int nbAlloc = 1024;
-	float *ratioImg = calloc(nbAlloc, sizeof(float));  
-	int nbImg = compressionUnType("img", &ratioImg, nbAlloc, algo);
-
-	float *ratioAudio = calloc (nbAlloc, sizeof(float));
-	int nbAudio = compressionUnType("audio", &ratioAudio, nbAlloc, algo);
 
 	float *ratioTxt = calloc(nbAlloc, sizeof(float));
 	int nbTxt = compressionUnType("txt", &ratioTxt, nbAlloc, algo);
 
+	float *ratioImg = calloc(nbAlloc, sizeof(float));
+	int nbImg = compressionUnType("img", &ratioImg, nbAlloc, algo);
+
+	float *ratioAudio = calloc (nbAlloc, sizeof(float));
+	int nbAudio = 0;//compressionUnType("audio", &ratioAudio, nbAlloc, algo);
 
 	float sumTotale = 0.;
 	float sumImg = 0.;
@@ -51,7 +51,7 @@ int main (int taille, char *args[]) {
 			sumTotale += ratioImg[i];
 		}
 		printf("nbImage = %d\n", nbImg);
-		printf("Taux compression moyen pour les images = %f\n", (sumImg / nbImg)*100);
+		printf("Taux compression moyen pour les images = %f\n", (1-(sumImg / nbImg))*100);
 	}
 
 	if (nbAudio != 0) {
@@ -60,23 +60,23 @@ int main (int taille, char *args[]) {
 			sumAudio += ratioAudio[i];
 			sumTotale += ratioAudio[i];
 		}
-		printf("Taux compression moyen pour les audios = %f\n", (sumAudio / nbAudio)*100);
+		printf("Taux compression moyen pour les audios = %f\n", (1-(sumAudio / nbAudio))*100);
 	}
 	if (nbTxt != 0) {
 		flag++;
 		for (int i = 0; i<nbTxt; i++) {
-			sumTxt += ratioTxt[i];
+			sumTxt += 1-ratioTxt[i];
 			sumTotale += ratioTxt[i];
 		}
-		printf("Taux compression moyen pour les textes = %f\n", (sumTxt / nbTxt)*100);
+		printf("Taux compression moyen pour les textes = %f\n", (1-(sumTxt / nbTxt))*100);
 	}
 
 	if (flag != 0) {
-		printf("Taux de compression moyen en tout = %f\n", (sumTotale/(nbImg + nbAudio + nbTxt))*100);
+		printf("Taux de compression moyen en tout = %f\n", (1-(sumTotale/(nbImg + nbAudio + nbTxt)))*100);
 	}
 
 
-
+	system("rm test_compression/*/*.cmp.*");
 	free(ratioImg);
 	free(ratioAudio);
 	free(ratioTxt);
@@ -93,7 +93,7 @@ int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo) 
 	if (dir == NULL) {
 		printf("Error opening %s ", pathOfType);
 		perror(" : ");
-		exit(-1); 
+		exit(-1);
 	}
 
 	//nbType = nombre de fichier dans le directory
@@ -178,14 +178,14 @@ float calculTauxCompression (char *input, char *algo) {
     float ratio = ((float) cmpFile.st_size)/inputFile.st_size;
     printf("Taille reelle = %ld\n", inputFile.st_size);
     printf("Taille compresse = %ld\n", cmpFile.st_size);
-    printf("Taux de compression : %f%%\n", ratio*100.);
+    printf("Taux de compression : %f%%\n", (1-ratio)*100.);
 
 
 
     char *cmdDiff = calloc (strlen(input) + strlen(uncmpFilename) + 10, sizeof(char));
     sprintf(cmdDiff, "diff %s %s", input, uncmpFilename);
     printf("diff : \n");
-    //system(cmdDiff);
+    system(cmdDiff);
     printf("Fin diff \n");
 
 
@@ -201,4 +201,4 @@ float calculTauxCompression (char *input, char *algo) {
     free(cmdUncmp);
     free(cmdDiff);
     return ratio;
-} 
+}
