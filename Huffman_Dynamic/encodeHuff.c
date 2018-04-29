@@ -84,24 +84,6 @@ char* getCodeFromiToRoot (noeud* arbre, int i, int len) {
 	int inteRes = 0;
 	noeud n1 = arbre[i];
 
-	if (n1.dp == 0) {
-		printf("\n****************** Probleme getCodeFromiToRoot l 95 ******************\n");
-		afficheArbre(arbre, len);
-		printf("****************** Probleme getCodeFromiToRoot l 95 ******************\n\n");
-		int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
-		if (descdot < 0) {
-			perror("qwe.dot doesn't exit ");
-			exit(-1);
-		}
-		createDotFile(descdot, arbre, len);
-		close(descdot);
-
-		char * s = calloc (1024,sizeof(char));
-		sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
-		system(s);
-		exit(-1);
-	}
-
 
 	int id = i;
 	int oldid = i;
@@ -142,8 +124,8 @@ char* reverseString (char* str) {
 
 
 int main (int taille, char *args[]) {
-	if (taille == 1) {
-		fprintf(stderr, "Missing args : nom du fichier a compresser\n");
+	if (taille < 3) {
+		fprintf(stderr, "Missing args : input output\n");
 		exit(-1);
 	}
 	int descin = open(args[1], O_RDONLY);
@@ -166,9 +148,7 @@ int main (int taille, char *args[]) {
 	char readLetter = '0';
 
 
-	char destFilename [strlen(args[1]) + 9];
-	strcpy(destFilename, args[1]);
-	strcat(destFilename, ".HDMI.cmp");
+	char *destFilename = args[2];
 
 	FILE * lol1 = fopen(destFilename,"w");
 	fclose(lol1);
@@ -234,7 +214,17 @@ int main (int taille, char *args[]) {
 	fclose(lol);
 
 	
-
+	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
+	if (descdot < 0) {
+		perror("qwe.dot doesn't exit ");
+		exit(-1);
+	}
+	createDotFile(descdot, arbre, nbNod);
+	close(descdot);
+	char * s = calloc (1024,sizeof(char));
+	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
+	system(s);
+	exit(-1);
 	
 
 	remove("qwe.dot");

@@ -1,56 +1,162 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-
-int main () {
-  int len = 11;
-  //TODO parcour les dossiers pour obtenir les fichiers à compresser etc.
-  //Quitte à supprimer les fichiers de compressions et décompressé a la fin pour eviter de les prendre en compte
-  const char *test[len];
-  test[0] = "AmerikastaPalatessa.txt";
-  test[1] = "Florante.txt";
-  test[2] = "Chinois.txt";
-  test[3] = "MobyDick.txt";
-  test[4] = "OurFriendtheDog.txt";
-  test[5] = "Explod.png";
-  test[6] = "image1.jpeg";
-  test[7] = "image2.jpeg";
-  test[8] = "image3.png";
-  test[9] = "image4.png";
-  test[10] = "image5.png";
+int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo);
+char * determineDossier (char *algo);
+float calculTauxCompression (char *input, char *algo);
 
 
 
+int main (int taille, char *args[]) {
+	if ((taille == 1)  || (strcmp(args[1], "HDMI") != 0 && strcmp(args[1], "HSMI") != 0 && strcmp(args[1], "LZMI") != 0)) {
+		fprintf(stderr, "Missing args : \n");
+		fprintf(stderr, "HSMI pour Huffman Static\n");
+		fprintf(stderr, "HDMI pour Huffman Dynamic\n");
+		fprintf(stderr, "LZMI pour Lempel-Ziv\n");
+		exit(-1);
+	}
 
-  float *ratio = calloc(len, sizeof(float));
 
-  for (int i = 0; i<len; i++) {
-    char *input = calloc(1024, sizeof(char));
-    sprintf(input, "test_file/%s", test[i]);
-    printf("input = %s\n", input);
 
-    //TODO faire en sorte que l'algo de compression soit en variable pour pouvoir
-    //tous les enchainer, de même pour les extensions de fichiers
+	char *algo = args[1];
+
+	int nbAlloc = 1024;
+	float *ratioImg = calloc(nbAlloc, sizeof(float));  
+	int nbImg = compressionUnType("img", &ratioImg, nbAlloc, algo);
+
+	float *ratioAudio = calloc (nbAlloc, sizeof(float));
+	int nbAudio = compressionUnType("audio", &ratioAudio, nbAlloc, algo);
+
+	float *ratioTxt = calloc(nbAlloc, sizeof(float));
+	int nbTxt = compressionUnType("txt", &ratioTxt, nbAlloc, algo);
+
+
+	float sumTotale = 0.;
+	float sumImg = 0.;
+	float sumAudio = 0.;
+	float sumTxt = 0.;
+
+	int flag = 0;
+
+	if (nbImg != 0) {
+		flag++;
+		for (int i = 0; i<nbImg; i++) {
+			sumImg += ratioImg[i];
+			sumTotale += ratioImg[i];
+		}
+		printf("nbImage = %d\n", nbImg);
+		printf("Taux compression moyen pour les images = %f\n", (sumImg / nbImg)*100);
+	}
+
+	if (nbAudio != 0) {
+		flag++;
+		for (int i = 0; i<nbAudio; i++) {
+			sumAudio += ratioAudio[i];
+			sumTotale += ratioAudio[i];
+		}
+		printf("Taux compression moyen pour les audios = %f\n", (sumAudio / nbAudio)*100);
+	}
+	if (nbTxt != 0) {
+		flag++;
+		for (int i = 0; i<nbTxt; i++) {
+			sumTxt += ratioTxt[i];
+			sumTotale += ratioTxt[i];
+		}
+		printf("Taux compression moyen pour les textes = %f\n", (sumTxt / nbTxt)*100);
+	}
+
+	if (flag != 0) {
+		printf("Taux de compression moyen en tout = %f\n", (sumTotale/(nbImg + nbAudio + nbTxt))*100);
+	}
+
+
+
+	free(ratioImg);
+	free(ratioAudio);
+	free(ratioTxt);
+  	return 0;
+}
+
+int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo) {
+	char *pathOfType = calloc (strlen(type) + 100, sizeof(char));
+	sprintf(pathOfType, "test_compression/%s", type);
+	float *ratio = *ratioPoint;
+
+
+	DIR *dir = opendir(pathOfType);
+	if (dir == NULL) {
+		printf("Error opening %s ", pathOfType);
+		perror(" : ");
+		exit(-1); 
+	}
+
+	//nbType = nombre de fichier dans le directory
+	int nbType = 0;
+
+	struct dirent * file = NULL;
+
+
+	while ((file = readdir(dir)) != NULL) {
+		if (strcmp(file->d_name, ".") == 0 || strcmp(file->d_name, "..") == 0) {
+			continue;
+		}
+		if (nbType == nbAlloc) {
+			nbAlloc *= 2;
+			ratio = realloc(ratio, nbAlloc*sizeof(float));
+		}
+		char *inputFilename = calloc(strlen(file->d_name) + strlen(pathOfType) + 10, sizeof(char));
+		sprintf(inputFilename, "%s/%s", pathOfType, file->d_name);
+		ratio[nbType++] = calculTauxCompression(inputFilename, algo);
+	}
+
+	ratio = realloc(ratio, nbType*sizeof(float));
+
+	closedir(dir);
+
+	return nbType;
+}
+
+
+char * determineDossier (char *algo) {
+	if (strcmp(algo, "HSMI") == 0) {
+		return "Huffman_Static";
+	} else if (strcmp(algo, "HDMI") == 0) {
+		return "Huffman_Dynamic";
+	} else if (strcmp(algo, "LZMI") == 0) {
+		return "Lempel_Ziv";
+	} else {
+		exit(-1);
+	}
+}
+
+float calculTauxCompression (char *input, char *algo) {
+
+    printf("\ninput = %s\n", input);
+
+	char *directoryAlgo = determineDossier(algo);
+
+
     char *cmpFilename = calloc(strlen(input)+10, sizeof(char));
-    sprintf(cmpFilename, "%s.HDMI.cmp", input);
-    printf("Fichier compresse = %s\n", cmpFilename);
+    sprintf(cmpFilename, "%s.%s.cmp", input, algo);
 
     char *uncmpFilename = calloc (strlen(cmpFilename)+10, sizeof(char));
     sprintf(uncmpFilename, "%s.uncmp", input);
-    printf("Fichier decompresse = %s\n", uncmpFilename);
 
 
     char *cmdCmp = calloc(1024, sizeof(char));
-    sprintf(cmdCmp, "Huffman_Dynamic/encodeHuff %s", input);
-
+    sprintf(cmdCmp, "%s/encodeHuff %s %s", directoryAlgo, input, cmpFilename);
     system(cmdCmp);
 
+
+
     char *cmdUncmp = calloc(1024, sizeof(char));
-    sprintf(cmdUncmp, "Huffman_Dynamic/decodeHuff %s %s", cmpFilename, uncmpFilename);
+    sprintf(cmdUncmp, "%s/decodeHuff %s %s", directoryAlgo, cmpFilename, uncmpFilename);
     system(cmdUncmp);
 
 
@@ -69,36 +175,30 @@ int main () {
     }
 
 
-    ratio[i] = ((float) cmpFile.st_size)/inputFile.st_size;
-    printf("Ancienne taille = %ld\n", inputFile.st_size);
-    printf("Nouvelle taille = %ld\n", cmpFile.st_size);
-    printf("Taux de compression : %f%%\n", ((float) 1-ratio[i])*100);
+    float ratio = ((float) cmpFile.st_size)/inputFile.st_size;
+    printf("Taille reelle = %ld\n", inputFile.st_size);
+    printf("Taille compresse = %ld\n", cmpFile.st_size);
+    printf("Taux de compression : %f%%\n", ratio*100.);
 
 
 
     char *cmdDiff = calloc (strlen(input) + strlen(uncmpFilename) + 10, sizeof(char));
     sprintf(cmdDiff, "diff %s %s", input, uncmpFilename);
     printf("diff : \n");
-    system(cmdDiff);
+    //system(cmdDiff);
     printf("Fin diff \n");
+
+
+
+    remove(cmpFilename);
+    remove(uncmpFilename);
+
 
     free(input);
     free(cmpFilename);
     free(uncmpFilename);
     free(cmdCmp);
     free(cmdUncmp);
-  }
-
-  float sum = 0;
-  for (int i = 0; i<len; i++) {
-    sum += (1-ratio[i]);
-  }
-  //TODO séparer les ratio des fichiers txts, img, et audio
-  //Donner les taux individuels et la taux moyen total
-  printf("Taux de compression moyen : %f%%\n", (sum/len)*100);
-
-
-
-  free(ratio);
-  return 0;
-}
+    free(cmdDiff);
+    return ratio;
+} 
