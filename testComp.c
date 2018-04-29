@@ -65,7 +65,7 @@ int main (int taille, char *args[]) {
 	if (nbTxt != 0) {
 		flag++;
 		for (int i = 0; i<nbTxt; i++) {
-			sumTxt += 1-ratioTxt[i];
+			sumTxt += ratioTxt[i];
 			sumTotale += ratioTxt[i];
 		}
 		printf("Taux compression moyen pour les textes = %f\n", (1-(sumTxt / nbTxt))*100);
