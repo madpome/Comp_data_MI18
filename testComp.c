@@ -75,8 +75,9 @@ int main (int taille, char *args[]) {
 		printf("Taux de compression moyen en tout = %f\n", (1-(sumTotale/(nbImg + nbAudio + nbTxt)))*100);
 	}
 
-
-	system("rm test_compression/*/*.cmp.*");
+	if(strcmp(algo,"HSMI")==0){
+		system("rm test_compression/*/*.cmp.*");
+	}
 	free(ratioImg);
 	free(ratioAudio);
 	free(ratioTxt);
