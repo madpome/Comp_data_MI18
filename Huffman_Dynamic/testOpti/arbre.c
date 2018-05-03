@@ -129,7 +129,7 @@ void swap (int index1, int index2, noeud* arbre, indexCode *tableau) {
 		noeud1->dfd = (index2 - index1 + noeud2->dfd);
 
 	} else {
-		// 
+		//
 		tableau[c2+128].index = index1;
 		tableau[c2+128].valid = 1;
 
@@ -182,7 +182,7 @@ void spreadNotValid(noeud *arbre, int index, indexCode *tableau) {
 	} else {
 		// On est dans une feuille
 		// Si index == 0, on est dans la feuille 0, donc on ne fait rien,
-		// Sinon, on change 
+		// Sinon, on change
 		if (index != 0) {
 			tableau[arbre[index].lettre + 128].valid = 1;
 		}
@@ -191,7 +191,7 @@ void spreadNotValid(noeud *arbre, int index, indexCode *tableau) {
 
 int rechercheEquilibre (noeud* arbre, int index, int len) {
 	// On cherche le plus grand index de poids inferieur egale a celui de arbre[index]
-	
+
 	for (int i = len-1; i>index; i--) {
 		// i != arbre[index].dp + index <=> i n'est pas le pere de index
 		if (arbre[i].poids <= arbre[index].poids && i != arbre[index].dp + index) {
@@ -199,7 +199,7 @@ int rechercheEquilibre (noeud* arbre, int index, int len) {
 		}
 	}
 	return -1;
-	
+
 	// Contre-intuitivement, la version d'en haut (en recherche lineaire) est plus rapide que la recherche dicho (en dessous)
 	/*
 	if (index == len-1) {
@@ -208,14 +208,22 @@ int rechercheEquilibre (noeud* arbre, int index, int len) {
 		return rechercheDicho (arbre, arbre[index].poids, index, len-1, index);
 	}
 	*/
-	
+
 }
-
-int rechercheDicho (noeud *arbre, int poids, int d, int f, int index) {
-
-	return -1;
+/*
+int rechercheDicho (noeud *arbre, int poids, int debut, int fin, int index) {
+	int imilieu = (debut+fin)/2;
+	noeud milieu = arbre[imilieu];
+	if(milieu.poids <= poids && arbre[imilieu+1].poids>poids && ((imilieu) != (arbre[index].dp + index))){
+		return imilieu;
+	}else if(milieu.poids > poids){
+		return rechercheDicho(arbre, poids, debut, imilieu, index);
+	}else{
+		return rechercheDicho(arbre, poids, imilieu, fin, index);
+	}
 }
-
+*/
+//int indexPereSame = rechercheDicho(arbre, arbre[index].poids, index, len-1, index);
 
 void reequilibre (noeud* arbre, int index, int len, indexCode *tableau) {
 	// Le flag > 0 indique qu'il y a eu un swap
@@ -232,7 +240,7 @@ void reequilibre (noeud* arbre, int index, int len, indexCode *tableau) {
 		arbre[index].poids++;
 		index = arbre[index].dp + index;
 
-		
+
 		if (arbre[index].dp == 0 && flag != 0) {
 			// On est a la racine
 			// Il faut mettre a jour les codes d'arbres dans tableau;
@@ -249,7 +257,7 @@ void reequilibre (noeud* arbre, int index, int len, indexCode *tableau) {
 			}
 
 		}
-		
+
 
 
 	}
@@ -301,7 +309,7 @@ noeud* addCharInTree (noeud** arbre, char c, int *nbNod, indexCode *tableau) {
 	//On modifie les valeurs de fils de (*arbre)[2] (l'ancien (*arbre)[0])
 	(*arbre)[2].dfg = -2;
 	(*arbre)[2].dfd = -1;
-	
+
 	tableau[c+128].index = 1;
 
 	for (int i = -128; i < 128; i++) {

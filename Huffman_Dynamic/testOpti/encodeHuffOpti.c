@@ -84,8 +84,8 @@ int main (int taille, char *args[]) {
 		fprintf(stderr, "Missing args : input output\n");
 		exit(-1);
 	}
-	int descin = open(args[1], O_RDONLY);
-	if (descin == -1) {
+	FILE * descin = fopen(args[1], "r");
+	if (descin == NULL) {
 		perror("Error opening the input");
 		exit(-1);
 	}
@@ -119,7 +119,7 @@ int main (int taille, char *args[]) {
 
 
 
-	while (read (descin, &readLetter, 1*sizeof(char)) == 1) {
+	while (fread (&readLetter, 1*sizeof(char), 1, descin) == 1) {
 		step++;
 		// -128 <= readLetter <= 127
 		if (tableau[readLetter+128].index == -1) {
@@ -147,7 +147,7 @@ int main (int taille, char *args[]) {
 			reequilibre(arbre, indexOfReadLetter, nbNod, tableau);
 
 		}
-	
+
 	}
 
 
@@ -166,7 +166,7 @@ int main (int taille, char *args[]) {
 	FILE * lol = fopen("qwe.dot","w");
 	fclose(lol);
 
-	
+
 	int descdot = open("qwe.dot", O_CREAT | O_RDWR,S_IRWXU);
 	if (descdot < 0) {
 		perror("qwe.dot doesn't exit ");
@@ -177,7 +177,7 @@ int main (int taille, char *args[]) {
 	char * s = calloc (1024,sizeof(char));
 	sprintf(s,"dot -Gcharset=latin1 -Tpng -o qwe.png qwe.dot");
 	system(s);
-	
+
 
 	remove("qwe.dot");
 	*/
@@ -186,6 +186,6 @@ int main (int taille, char *args[]) {
 
 	fclose(fout);
 	free(arbre);
-	close(descin);
+	fclose(descin);
 	return 0;
 }
