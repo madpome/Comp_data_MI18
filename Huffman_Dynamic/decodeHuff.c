@@ -2,15 +2,15 @@
 #include <unistd.h>
 #include <sys/types.h>
 unsigned char bitTab[8];
-int read_header(int desc){
+int read_header(FILE * f){
     char *s = calloc(5,sizeof(char));
-    read(desc, s, 4*sizeof(char));
+    fread(s, sizeof(char), 4, f);
     s[4]='\0';
     return (strcmp(s,"HDMI")!=0)?-1:1;
 }
 int truc = 0;
 //Décalage+1 c'est le bit a partir du quel on doit lireZero
-int lireZero(int descR, int decalage, char *lu){
+int lireZero(FILE * descIn, int decalage, char *lu){
     int nbZero = 0;
     for(int i = decalage+1; i<8; i++){
         if((*lu & bitTab[7-i])==bitTab[7-i]){
@@ -18,7 +18,7 @@ int lireZero(int descR, int decalage, char *lu){
         }
         nbZero ++;
     }
-    read(descR,lu,1);
+    fread(lu,1,1,descIn);
     int idx = 0;
     if(nbZero!=8){
         for(int i = 7 ;i>=nbZero; i--){
@@ -31,7 +31,7 @@ int lireZero(int descR, int decalage, char *lu){
     return idx;
 }
 
-int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, char *lu){
+int readLetter(FILE * descR, FILE * descW, noeud ***arbre, int *nbNode, int decalage, char *lu){
 
     int idx = lireZero(descR, decalage, lu);
     if(idx == -1){
@@ -47,7 +47,7 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
         }
     }
     if(idx != 0){
-        read(descR, lu, 1);
+        fread(lu, 1, 1,descR);
         for(int i = 7;i>=bitLu;i--){
             if((*lu & bitTab[i])!=0){
                 c|=(bitTab[i-bitLu]);
@@ -56,7 +56,7 @@ int readLetter(int descR, int descW, noeud ***arbre, int *nbNode, int decalage, 
     }
 
     **arbre = addCharInTree(*arbre, c, nbNode);
-    if(write(descW, &c, 1) <0){
+    if(fwrite(&c, 1, 1, descW) <0){
         perror("");
         exit(-1);
     }
@@ -74,10 +74,10 @@ int main(int argc, char **argv){
         fprintf(stderr,"2 arguments : entrée et sortie\n");
         return -1;
     }
-    int descRead = open(argv[1], O_RDONLY);
+    FILE * descRead = fopen(argv[1], "r");
     FILE * f = fopen(argv[2],"w");
     fclose(f);
-    int descWrite = open(argv[2], O_CREAT|O_RDWR, 0777);
+    FILE * descWrite = fopen(argv[2], "w");
     if(descRead <0){
         fprintf(stderr, "Impossible d'ouvrir en lecture %s\n",argv[1]);
         return -1;
@@ -102,12 +102,12 @@ int main(int argc, char **argv){
 
 
     char *c= calloc(1, sizeof(char));
-    read(descRead,c,1);
+    fread(c,1,1,descRead);
 
     int r =readLetter(descRead, descWrite, &arbre, nbNode,-1, c);
     if(r==-3){
-        close(descRead);
-        close(descWrite);
+        fclose(descRead);
+        fclose(descWrite);
         return 0;
     }else if(r == -2){
         return -1;
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
     int pos = *nbNode-1;
     noeud cur = (*arbre)[pos];
     while(1){
-        read(descRead, c, 1);
+        fread(c, 1, 1, descRead);
         for(idx = 0;idx<8 ;idx++){
             //Si le bit a la pos idx est en 1
             //Peut etre tester des cas ou y'a des erreurs ?
@@ -132,15 +132,15 @@ int main(int argc, char **argv){
                     //Il faut lire une lettre
                     idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c)-1;
                     if(idx == -2){
-                        close(descRead);
-                        close(descWrite);
+                        fclose(descRead);
+                        fclose(descWrite);
                         return 0;
                     }else if(idx < -1){
                         return -1;
                     }
                 }else{
                     reequilibre(*arbre,searchChar(*arbre, cur.lettre, *nbNode),*nbNode,0);
-                    write(descWrite, &cur.lettre, 1);
+                    fwrite(&cur.lettre, 1, 1 ,descWrite);
                 }
                 pos = *nbNode-1;
                 cur=(*arbre)[pos];
