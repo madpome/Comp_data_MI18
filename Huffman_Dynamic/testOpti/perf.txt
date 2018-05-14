@@ -1,5 +1,6 @@
 Sur 01*.flac
 
+--------------------------------------
 Avec Optimisation :
 Avec rechercheDicho :
 1m2.342
@@ -9,6 +10,10 @@ Sans rechercheDicho :
 2m18.281
 0 sys
 
+Avec -Ofast a la compilation :
+16.911s
+
+--------------------------------------
 Sans Optimisation du tout :
 +26m, arret de la compression avant la fin,
 22m de sys
