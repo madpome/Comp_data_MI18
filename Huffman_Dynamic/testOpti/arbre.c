@@ -190,39 +190,54 @@ void spreadNotValid(noeud *arbre, int index, indexCode *tableau) {
 }
 
 int rechercheEquilibre (noeud* arbre, int index, int len) {
-	// On cherche le plus grand index de poids inferieur egale a celui de arbre[index]
-
+	// On cherche le plus grand index de poids inferieur a celui de arbre[index]
+	
 	for (int i = len-1; i>index; i--) {
-		// i != arbre[index].dp + index <=> i n'est pas le pere de index
-		if (arbre[i].poids <= arbre[index].poids && i != arbre[index].dp + index) {
+		if (arbre[i].poids == arbre[index].poids && i != arbre[index].dp + index) {
 			return i;
 		}
 	}
 	return -1;
+	
+	//On fait une dicho ici
+	//return rechercheDicho(arbre, index, index+1, len-1, len);
+}
 
-	// Contre-intuitivement, la version d'en haut (en recherche lineaire) est plus rapide que la recherche dicho (en dessous)
-	/*
-	if (index == len-1) {
-		return -1;
+// debut et fin include
+int rechercheDicho (noeud* arbre, int index, int debut, int fin, int len) {
+	if (debut == fin) {
+		if (arbre[debut].poids == arbre[index].poids && debut != arbre[index].dp + index) {
+			return debut;
+		} else {
+			return -1;
+		}
+	} else if (fin - debut == 1) {
+		if (arbre[fin].poids == arbre[index].poids && fin != arbre[index].dp + index) {
+			return fin;
+		} else if (arbre[debut].poids == arbre[index].poids && debut != arbre[index].dp + index) {
+			return debut;
+		} else {
+			return -1;
+		}
+	}
+	int m = (fin + debut)/2;
+	if (arbre[m].poids < arbre[index].poids) {
+		return rechercheDicho (arbre, index, m+1, fin, len);
+	} else if (arbre[m].poids > arbre[index].poids) {
+		return rechercheDicho (arbre, index, debut, m-1, len);
 	} else {
-		return rechercheDicho (arbre, arbre[index].poids, index, len-1, index);
+		if (arbre[m+1].poids == arbre[index].poids) {
+			return rechercheDicho (arbre, index, m+1, fin, len);
+		} else if (m != index + arbre[index].dp) {
+			return m;
+		} else {
+			return -1;
+		}
 	}
-	*/
+	return m;
 
 }
-/*
-int rechercheDicho (noeud *arbre, int poids, int debut, int fin, int index) {
-	int imilieu = (debut+fin)/2;
-	noeud milieu = arbre[imilieu];
-	if(milieu.poids <= poids && arbre[imilieu+1].poids>poids && ((imilieu) != (arbre[index].dp + index))){
-		return imilieu;
-	}else if(milieu.poids > poids){
-		return rechercheDicho(arbre, poids, debut, imilieu, index);
-	}else{
-		return rechercheDicho(arbre, poids, imilieu, fin, index);
-	}
-}
-*/
+
 //int indexPereSame = rechercheDicho(arbre, arbre[index].poids, index, len-1, index);
 
 void reequilibre (noeud* arbre, int index, int len, indexCode *tableau) {

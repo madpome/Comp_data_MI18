@@ -77,8 +77,6 @@ int getLen (noeud* arbre) {
 }
 
 
-
-
 int main (int taille, char *args[]) {
 	if (taille < 3) {
 		fprintf(stderr, "Missing args : input output\n");

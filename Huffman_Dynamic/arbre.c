@@ -136,7 +136,6 @@ void swap (int index1, int index2, noeud* arbre) {
 	} else {
 		// noeud1 est une feuille
 		/*printf("************************* 88 LOL 88 ******************* \n");
-
 		afficheNod(arbre[n1fg]);
 		afficheNod(arbre[n1fd]);
 		printf("\n\n");

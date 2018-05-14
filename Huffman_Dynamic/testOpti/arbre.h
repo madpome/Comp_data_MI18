@@ -44,7 +44,7 @@ void swap (int index1, int index2, noeud* arbre, indexCode *tableau);
 int plusCroissant (noeud* arbre, int len);
 void spreadNotValid(noeud *arbre, int index, indexCode *tableau);
 int rechercheEquilibre (noeud* arbre, int index, int len);
-int rechercheDicho (noeud *arbre, int poids, int d, int f, int index);
+int rechercheDicho (noeud* arbre, int index, int debut, int fin, int len);
 void reequilibre (noeud* arbre, int index, int len, indexCode *tableau);
 void incrementChar(noeud* arbre, int len, int indexDeC, indexCode *tab);
 void deplacement (noeud* arbre, int nbNod, int k);

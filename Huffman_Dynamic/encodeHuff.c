@@ -4,11 +4,9 @@
 /*
 	On va definir plusieurs variables globales, qui serviront a ecrire en stream,
 	durant la construction de l'arbre
-
 	buff :		c'est le tampon dans lequel on va ecrire
 	nbrDeBit :	nombre de bit qu'on a ecrit dans buff, on a 0 <= nbrDeBit <= 8.
 				Quand on a nbrDeBit == 8, on ecrit
-
 */
 unsigned char buff = '\0';
 int nbrDeBit = 0;
