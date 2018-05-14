@@ -191,16 +191,16 @@ void spreadNotValid(noeud *arbre, int index, indexCode *tableau) {
 
 int rechercheEquilibre (noeud* arbre, int index, int len) {
 	// On cherche le plus grand index de poids inferieur a celui de arbre[index]
-	
+	/*
 	for (int i = len-1; i>index; i--) {
 		if (arbre[i].poids == arbre[index].poids && i != arbre[index].dp + index) {
 			return i;
 		}
 	}
 	return -1;
-	
+	*/
 	//On fait une dicho ici
-	//return rechercheDicho(arbre, index, index+1, len-1, len);
+	return rechercheDicho(arbre, index, index+1, len-1, len);
 }
 
 // debut et fin include
