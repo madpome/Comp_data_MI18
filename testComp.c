@@ -7,18 +7,24 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo);
-char * determineDossier (char *algo);
-float calculTauxCompression (char *input, char *algo);
+int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo,char *opti);
+char * determineDossier (char *algo,char *opti);
+float calculTauxCompression (char *input, char *algo,char *opti);
 
 
 
 int main (int taille, char *args[]) {
-	if ((taille == 1)  || (strcmp(args[1], "HDMI") != 0 && strcmp(args[1], "HSMI") != 0 && strcmp(args[1], "LZMI") != 0)) {
+	if ((taille == 2)  || (strcmp(args[1], "HDMI") != 0 && strcmp(args[1], "HSMI") != 0 && strcmp(args[1], "LZMI") != 0)) {
 		fprintf(stderr, "Missing args : \n");
 		fprintf(stderr, "HSMI pour Huffman Static\n");
 		fprintf(stderr, "HDMI pour Huffman Dynamic\n");
 		fprintf(stderr, "LZMI pour Lempel-Ziv\n");
+		fprintf(stderr, "OPTI pour OPTI, NOPTI pour NON OPTI\n");
+		exit(-1);
+	}
+	char *opti = args[2];
+	if(!(strcmp(opti,"OPTI")==0 || strcmp(opti,"NOPTI") == 0)){
+		fprintf(stderr,"err\n");
 		exit(-1);
 	}
 
@@ -29,10 +35,10 @@ int main (int taille, char *args[]) {
 	int nbAlloc = 1024;
 
 	float *ratioTxt = calloc(nbAlloc, sizeof(float));
-	int nbTxt = compressionUnType("txt", &ratioTxt, nbAlloc, algo);
+	int nbTxt = compressionUnType("txt", &ratioTxt, nbAlloc, algo,opti);
 
 	float *ratioImg = calloc(nbAlloc, sizeof(float));
-	int nbImg = compressionUnType("img", &ratioImg, nbAlloc, algo);
+	int nbImg = compressionUnType("img", &ratioImg, nbAlloc, algo,opti);
 
 	float *ratioAudio = calloc (nbAlloc, sizeof(float));
 	int nbAudio = 0;//compressionUnType("audio", &ratioAudio, nbAlloc, algo);
@@ -84,7 +90,7 @@ int main (int taille, char *args[]) {
   	return 0;
 }
 
-int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo) {
+int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo,char * opti) {
 	char *pathOfType = calloc (strlen(type) + 100, sizeof(char));
 	sprintf(pathOfType, "test_compression/%s", type);
 	float *ratio = *ratioPoint;
@@ -113,7 +119,7 @@ int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo) 
 		}
 		char *inputFilename = calloc(strlen(file->d_name) + strlen(pathOfType) + 10, sizeof(char));
 		sprintf(inputFilename, "%s/%s", pathOfType, file->d_name);
-		ratio[nbType++] = calculTauxCompression(inputFilename, algo);
+		ratio[nbType++] = calculTauxCompression(inputFilename, algo,opti);
 	}
 
 	ratio = realloc(ratio, nbType*sizeof(float));
@@ -124,11 +130,17 @@ int compressionUnType (char *type, float** ratioPoint, int nbAlloc, char *algo) 
 }
 
 
-char * determineDossier (char *algo) {
+char * determineDossier (char *algo ,char *opti) {
 	if (strcmp(algo, "HSMI") == 0) {
 		return "Huffman_Static";
 	} else if (strcmp(algo, "HDMI") == 0) {
-		return "Huffman_Dynamic";
+		if(strcmp(opti,"NOPTI")==0){
+			return "Huffman_Dynamic/NoOpti";
+		}else if(strcmp(opti,"OPTI")==0){
+			return "Huffman_Dynamic/Opti";
+		}else{
+			return "Huffman_Dynamic";
+		}
 	} else if (strcmp(algo, "LZMI") == 0) {
 		return "Lempel_Ziv";
 	} else {
@@ -136,11 +148,11 @@ char * determineDossier (char *algo) {
 	}
 }
 
-float calculTauxCompression (char *input, char *algo) {
+float calculTauxCompression (char *input, char *algo,char *opti) {
 
     printf("\ninput = %s\n", input);
 
-	char *directoryAlgo = determineDossier(algo);
+	char *directoryAlgo = determineDossier(algo,opti);
 
 
     char *cmpFilename = calloc(strlen(input)+10, sizeof(char));
