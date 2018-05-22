@@ -1,4 +1,4 @@
-#include "encodeHuffOpti.h"
+#include "encodeHuff.h"
 
 /*
 	On va definir plusieurs variables globales, qui serviront a ecrire en stream,
