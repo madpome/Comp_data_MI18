@@ -31,7 +31,7 @@ int lireZero(FILE * descIn, int decalage, char *lu){
     return idx;
 }
 
-int readLetter(FILE * descR, FILE * descW, noeud ***arbre, int *nbNode, int decalage, char *lu){
+int readLetter(FILE * descR, FILE * descW, noeud ***arbre, int *nbNode, int decalage, char *lu, indexCode **tableau){
 
     int idx = lireZero(descR, decalage, lu);
     if(idx == -1){
@@ -55,12 +55,12 @@ int readLetter(FILE * descR, FILE * descW, noeud ***arbre, int *nbNode, int deca
         }
     }
 
-    **arbre = addCharInTree(*arbre, c, nbNode);
+    **arbre = addCharInTree(*arbre, c, nbNode, *tableau);
     if(fwrite(&c, 1, 1, descW) <0){
         perror("");
         exit(-1);
     }
-    reequilibre (**arbre, 2, *nbNode, 0);
+    reequilibre (**arbre, 2, *nbNode, *tableau);
     return idx;
 }
 
@@ -94,6 +94,13 @@ int main(int argc, char **argv){
         fprintf(stderr,"Header incorrect\n");
         return -1;
     }
+    indexCode *tableau = calloc (256, sizeof(indexCode));
+    for (int i = 0; i<=255; i++) {
+        tableau[i].index = -1;
+        tableau[i].code = calloc (1, sizeof(char));
+        tableau[i].code[0] = '0';
+        tableau[i].valid = 1;
+    }
 
     noeud **arbre = calloc(sizeof(*arbre),1);
     *arbre = setArbre();
@@ -104,7 +111,7 @@ int main(int argc, char **argv){
     char *c= calloc(1, sizeof(char));
     fread(c,1,1,descRead);
 
-    int r =readLetter(descRead, descWrite, &arbre, nbNode,-1, c);
+    int r =readLetter(descRead, descWrite, &arbre, nbNode,-1,c,&tableau);
     if(r==-3){
         fclose(descRead);
         fclose(descWrite);
@@ -130,7 +137,7 @@ int main(int argc, char **argv){
             if(cur.dfg == 0 && cur.dfd==0){
                 if(pos == 0){
                     //Il faut lire une lettre
-                    idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c)-1;
+                    idx = readLetter(descRead, descWrite, &arbre, nbNode, idx,c,&tableau)-1;
                     if(idx == -2){
                         fclose(descRead);
                         fclose(descWrite);
@@ -139,7 +146,7 @@ int main(int argc, char **argv){
                         return -1;
                     }
                 }else{
-                    reequilibre(*arbre,searchChar(*arbre, cur.lettre, *nbNode),*nbNode,0);
+                    reequilibre(*arbre,searchChar(*arbre, cur.lettre, *nbNode),*nbNode,tableau);
                     fwrite(&cur.lettre, 1, 1 ,descWrite);
                 }
                 pos = *nbNode-1;
