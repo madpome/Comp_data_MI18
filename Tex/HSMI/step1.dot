@@ -1,0 +1,21 @@
+digraph graphname {
+	subgraph {
+		"c, 1";
+	}
+
+	subgraph {
+		"d, 1";
+	}
+
+	subgraph {
+		"b, 2";
+	}
+
+	subgraph {
+		"r, 2";
+	}
+
+	subgraph {
+		"a, 5";
+	}
+}

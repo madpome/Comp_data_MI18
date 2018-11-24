@@ -1,0 +1,12 @@
+set terminal png
+set output "decodecompaudio2.png"
+set title 'Comparaison des performances du decodage (pour des fichiers audio)'
+set xlabel 'Taille (en Mo)'
+set ylabel 'Temps (en secondes)'
+plot "decodecompaudio.txt" using 1:2 with lines title 'HSMI', "decodecompaudio.txt" using 1:3 with lines title 'HDMI Non opti', "decodecompaudio.txt" using 1:4 with lines title 'HDMI Opti'
+
+set output "encodecompaudio2.png"
+set title "Comparaison des performances de l'encodage (pour des fichiers audio)"
+set xlabel 'Taille (en Mo)'
+set ylabel 'Temps (en secondes)'
+plot "encodecompaudio.txt" using 1:2 with lines title 'HSMI', "encodecompaudio.txt" using 1:3 with lines title 'HDMI Non opti', "encodecompaudio.txt" using 1:4 with lines title 'HDMI Opti'

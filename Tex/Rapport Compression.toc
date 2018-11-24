@@ -1,0 +1,28 @@
+\contentsline {section}{\numberline {1}Huffman Statique}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}Fonctionnement}{3}{subsection.1.1}
+\contentsline {subsubsection}{\numberline {1.1.1}Compression}{3}{subsubsection.1.1.1}
+\contentsline {subsubsection}{\numberline {1.1.2}D\'ecompression}{4}{subsubsection.1.1.2}
+\contentsline {subsection}{\numberline {1.2}Structure de donn\'ees utilis\'ee}{4}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Optimisation}{4}{subsection.1.3}
+\contentsline {subsection}{\numberline {1.4}Exemple}{4}{subsection.1.4}
+\contentsline {subsection}{\numberline {1.5}Sp\'ecification}{6}{subsection.1.5}
+\contentsline {section}{\numberline {2}Huffman Dynamique}{7}{section.2}
+\contentsline {subsection}{\numberline {2.1}Fonctionnement}{7}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}Manipulation de l'arbre}{7}{subsubsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.2}Compression}{8}{subsubsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.3}D\'ecompression}{9}{subsubsection.2.1.3}
+\contentsline {subsection}{\numberline {2.2}Structures de donn\'ees utilis\'ees}{9}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Optimisation}{9}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Exemple}{10}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}Sp\'ecification}{12}{subsection.2.5}
+\contentsline {section}{\numberline {3}Pseudo-code}{13}{section.3}
+\contentsline {subsection}{\numberline {3.1}Huffman Statique Compression}{13}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Huffman Statique D\'ecompression}{14}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Huffman Dynamique Compression}{14}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Huffman Dynamique D\'ecompression}{15}{subsection.3.4}
+\contentsline {section}{\numberline {4}Performances}{16}{section.4}
+\contentsline {subsection}{\numberline {4.1}Fichiers texte}{16}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Fichiers image}{16}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Fichiers audio}{17}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Comparaison des taux de compression}{17}{subsection.4.4}
+\contentsline {section}{\numberline {5}Liste des outils utilis\'es}{18}{section.5}
